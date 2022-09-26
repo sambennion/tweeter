@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.client.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.backgroundTask.LoginTask;
+import edu.byu.cs.tweeter.client.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.backgroundTask.RegisterTask;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
@@ -37,6 +38,10 @@ public class UserService {
     public interface RegisterObserver{
         void registerSucceeded(User user, AuthToken authToken);
         void registerFailed(String message);
+    }
+    public interface LogoutObserver{
+        void logoutSucceeded();
+        void logoutFailed(String message);
     }
     public interface GetUserObserver {
         void getUserSucceeded(User user);
@@ -57,6 +62,11 @@ public class UserService {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(loginTask);
+    }
+    public void logout(AuthToken authToken, LogoutObserver observer){
+        LogoutTask logoutTask = new LogoutTask(authToken, new LogoutHandler(observer));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(logoutTask);
     }
 
     private class LoginHandler extends Handler {
@@ -83,6 +93,28 @@ public class UserService {
             } else if (msg.getData().containsKey(LoginTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(LoginTask.EXCEPTION_KEY);
                 observer.loginFailed("Failed to login because of exception: " + ex.getMessage());
+            }
+        }
+    }
+    private class LogoutHandler extends Handler {
+        private LogoutObserver observer;
+        public LogoutHandler(LogoutObserver observer){
+            this.observer = observer;
+        }
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(LoginTask.SUCCESS_KEY);
+            if (success) {
+                // Cache user session information
+                observer.logoutSucceeded();
+
+            } else if (msg.getData().containsKey(LoginTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(LoginTask.MESSAGE_KEY);
+                observer.logoutFailed("Failed to logout " + message);
+
+            } else if (msg.getData().containsKey(LoginTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(LoginTask.EXCEPTION_KEY);
+                observer.logoutFailed("Failed to login because of exception: " + ex.getMessage());
             }
         }
     }
@@ -139,23 +171,17 @@ public class UserService {
         public GetUserHandler(GetUserObserver observer){this.observer = observer;}
         @Override
         public void handleMessage(@NonNull Message msg) {
-            //This stuff goes between Presenter, View, and Service
             boolean success = msg.getData().getBoolean(GetUserTask.SUCCESS_KEY);
             if (success) {
                 User user = (User) msg.getData().getSerializable(GetUserTask.USER_KEY);
 
                 observer.getUserSucceeded(user);
-//                Intent intent = new Intent(getContext(), MainActivity.class);
-//                intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
-//                startActivity(intent);
             } else if (msg.getData().containsKey(GetUserTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(GetUserTask.MESSAGE_KEY);
                 observer.getUserFailed("Failed to get user's profile: " + message);
-//                Toast.makeText(getContext(), "Failed to get user's profile: " + message, Toast.LENGTH_LONG).show();
             } else if (msg.getData().containsKey(GetUserTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(GetUserTask.EXCEPTION_KEY);
                 observer.getUserFailed("Failed to get user's profile because of exception: " + ex.getMessage());
-//                Toast.makeText(getContext(), "Failed to get user's profile because of exception: " + ex.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }

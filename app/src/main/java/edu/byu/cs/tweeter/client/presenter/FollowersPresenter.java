@@ -93,7 +93,7 @@ public class FollowersPresenter implements UserService.GetUserObserver, FollowSe
         if (!isLoading && hasMorePages) {
             setLoading(true);
             view.setLoading(true);
-//            getFollowers(authToken, user, PAGE_SIZE, lastFollower);
+            getFollowers(authToken, user, PAGE_SIZE, lastFollower);
         }
     }
 
@@ -104,13 +104,13 @@ public class FollowersPresenter implements UserService.GetUserObserver, FollowSe
      * operation.
      *
      * @param authToken    the session auth token.
-     * @param targetUser   the user for whom followees are being retrieved.
-     * @param limit        the maximum number of followees to return.
-     * @param lastFollower the last followee returned in the previous request (can be null).
+     * @param targetUser   the user for whom followers are being retrieved.
+     * @param limit        the maximum number of followers to return.
+     * @param lastFollower the last followers returned in the previous request (can be null).
      */
-//    public void getFollowers(AuthToken authToken, User targetUser, int limit, User lastFollower) {
-//        getFollowersService().getFollows(authToken, targetUser, limit, lastFollower, this);
-//    }
+    public void getFollowers(AuthToken authToken, User targetUser, int limit, User lastFollower) {
+        getFollowService().getFollowers(authToken, targetUser, limit, lastFollower, this);
+    }
 
     /**
      * Returns an instance of {@link FollowService}. Allows mocking of the FollowService class
@@ -119,23 +119,23 @@ public class FollowersPresenter implements UserService.GetUserObserver, FollowSe
      *
      * @return the instance.
      */
-    public FollowService getFollowersService() {
+    public FollowService getFollowService() {
         return new FollowService();
     }
 
     /**
      * Adds new followees retrieved asynchronously from the service to the view.
      *
-     * @param followees    the retrieved followees.
+     * @param followers    the retrieved followees.
      * @param hasMorePages whether or not there are more followees to be retrieved.
      */
     @Override
-    public void handleSuccess(List<User> followees, boolean hasMorePages) {
-        setlastFollower((followees.size() > 0) ? followees.get(followees.size() - 1) : null);
+    public void handleSuccess(List<User> followers, boolean hasMorePages) {
+        setlastFollower((followers.size() > 0) ? followers.get(followers.size() - 1) : null);
         setHasMorePages(hasMorePages);
 
         view.setLoading(false);
-        view.addItems(followees);
+        view.addItems(followers);
         setLoading(false);
 
 
