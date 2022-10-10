@@ -49,6 +49,7 @@ public class StoryPresenter implements StatusService.GetStatusesObserver, UserSe
 
     private void setHasMorePages(boolean hasMorePages){
         this.hasMorePages = hasMorePages;
+        view.setHasMorePages(hasMorePages);
     }
     @Override
     public void handleFailure(String message) {

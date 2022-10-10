@@ -1,8 +1,14 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.service.FollowService;
 import edu.byu.cs.tweeter.client.service.StatusService;
 import edu.byu.cs.tweeter.client.service.UserService;
@@ -114,6 +120,77 @@ public class MainPresenter implements FollowService.IsFollowerObserver, FollowSe
         view.displayErrorMessage(message);
     }
 
+    public void initiatePost(String post, User currUser) {
+        Status newStatus;
+        try {
+            newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
+            initiatePostStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus);
+        } catch (Exception ex){
+            view.displayErrorMessage("Exception while taking status input");
+        }
+    }
+    public String getFormattedDateTime() throws ParseException {
+        SimpleDateFormat userFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat statusFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+
+        return statusFormat.format(userFormat.parse(LocalDate.now().toString() + " " + LocalTime.now().toString().substring(0, 8)));
+    }
+    public List<String> parseURLs(String post) {
+        List<String> containedUrls = new ArrayList<>();
+        for (String word : post.split("\\s")) {
+            if (word.startsWith("http://") || word.startsWith("https://")) {
+
+                int index = findUrlEndIndex(word);
+
+                word = word.substring(0, index);
+
+                containedUrls.add(word);
+            }
+        }
+
+        return containedUrls;
+    }
+
+    public List<String> parseMentions(String post) {
+        List<String> containedMentions = new ArrayList<>();
+
+        for (String word : post.split("\\s")) {
+            if (word.startsWith("@")) {
+                word = word.replaceAll("[^a-zA-Z0-9]", "");
+                word = "@".concat(word);
+
+                containedMentions.add(word);
+            }
+        }
+
+        return containedMentions;
+    }
+    public int findUrlEndIndex(String word) {
+        if (word.contains(".com")) {
+            int index = word.indexOf(".com");
+            index += 4;
+            return index;
+        } else if (word.contains(".org")) {
+            int index = word.indexOf(".org");
+            index += 4;
+            return index;
+        } else if (word.contains(".edu")) {
+            int index = word.indexOf(".edu");
+            index += 4;
+            return index;
+        } else if (word.contains(".net")) {
+            int index = word.indexOf(".net");
+            index += 4;
+            return index;
+        } else if (word.contains(".mil")) {
+            int index = word.indexOf(".mil");
+            index += 4;
+            return index;
+        } else {
+            return word.length();
+        }
+    }
+
     public interface View {
         void displayFollowerCount(int count);
         void displayFollowingCount(int count);
@@ -122,11 +199,8 @@ public class MainPresenter implements FollowService.IsFollowerObserver, FollowSe
         void displayFollowingButton();
         void displayFollowButton();
         void logoutUser();
-
         void enableFollowButton();
-
         void updateFollowingsFollowers(boolean isRemoved);
-//        void navigateToUser(User user);
     }
 
     public void initiateIsFollowerTask(AuthToken authToken, User user, User selected){
