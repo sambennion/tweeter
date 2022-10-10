@@ -2,36 +2,30 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.observer.LoginObserver;
 import edu.byu.cs.tweeter.client.service.UserService;
-import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.User;
 
 public class LoginPresenter extends SignInPresenter implements LoginObserver {
 
-    public LoginPresenter(SignInPresenter.SignInView view){
+    public LoginPresenter(SignInPresenter.SignInView view) {
         super(view);
     }
-    public void initiateLogin(String username, String password){
-        String message = validateLogin(username, password);
-        view.clearErrorMessage();
-        if(message == null){
-            view.displayInfoMessage("Logging in ...");
-            new UserService().login(username, password, this);
-        }
-        else{
-            view.displayErrorMessage(message);
-        }
-    }
-    //Returns error message if error, otherwise null
-    public String validateLogin(String username, String password) {
-        if (username.charAt(0) != '@') {
+
+    @Override
+    public String validate(UserInfo userInfo) {
+        if (userInfo.alias.charAt(0) != '@') {
             return "Alias must begin with @.";
         }
-        if (username.length() < 2) {
+        if (userInfo.alias.length() < 2) {
             return "Alias must contain 1 or more characters after the @.";
         }
-        if (password.length() == 0) {
+        if (userInfo.alias.length() == 0) {
             return "Password cannot be empty.";
         }
         return null;
+    }
+
+    @Override
+    public void signIn(UserInfo userInfo) {
+        view.displayInfoMessage("Logging in ...");
+        new UserService().login(userInfo.alias, userInfo.pword, this);
     }
 }

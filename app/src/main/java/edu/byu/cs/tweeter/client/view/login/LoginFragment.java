@@ -59,7 +59,7 @@ public class LoginFragment extends Fragment implements SignInPresenter.SignInVie
                 String uname = alias.getText().toString();
                 String pword = password.getText().toString();
 
-                presenter.initiateLogin(uname, pword);
+                presenter.initiateSignIn(new SignInPresenter.UserInfo(uname, pword));
             }
         });
 

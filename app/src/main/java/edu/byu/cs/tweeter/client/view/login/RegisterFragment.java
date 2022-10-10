@@ -40,6 +40,7 @@ public class RegisterFragment extends Fragment implements SignInPresenter.SignIn
     private Toast registeringToast;
 
     private RegisterPresenter presenter = new RegisterPresenter(this);
+
     /**
      * Creates an instance of the fragment and places the user and auth token in an arguments
      * bundle assigned to the fragment.
@@ -83,7 +84,7 @@ public class RegisterFragment extends Fragment implements SignInPresenter.SignIn
                 String pwrd = password.getText().toString();
 
 
-                presenter.initiateRegister(fname, lname, uname, pwrd, imageToUpload);
+                presenter.initiateSignIn(new SignInPresenter.UserInfo(fname, lname, uname, pwrd, imageToUpload));
             }
         });
 
@@ -103,7 +104,6 @@ public class RegisterFragment extends Fragment implements SignInPresenter.SignIn
     }
 
 
-
     @Override
     public void displayInfoMessage(String message) {
         clearErrorMessage();
@@ -113,7 +113,7 @@ public class RegisterFragment extends Fragment implements SignInPresenter.SignIn
 
     @Override
     public void clearInfoMessage() {
-        if(registeringToast != null){
+        if (registeringToast != null) {
             registeringToast.cancel();
             registeringToast = null;
         }
