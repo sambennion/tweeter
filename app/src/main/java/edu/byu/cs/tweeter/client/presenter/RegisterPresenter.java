@@ -2,11 +2,12 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import android.widget.ImageView;
 
+import edu.byu.cs.tweeter.client.observer.RegisterObserver;
 import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class RegisterPresenter extends SignInPresenter implements UserService.RegisterObserver {
+public class RegisterPresenter extends SignInPresenter implements RegisterObserver {
 //    private View view;
 
     public RegisterPresenter(SignInPresenter.SignInView view){
@@ -58,9 +59,16 @@ public class RegisterPresenter extends SignInPresenter implements UserService.Re
         view.clearErrorMessage();
         view.navigateToUser(user);
     }
+
     @Override
-    public void registerFailed(String message) {
+    public void handleFailure(String message) {
         view.clearInfoMessage();
         view.displayErrorMessage(message);
+    }
+
+    @Override
+    public void handleException(Exception exception) {
+        view.clearInfoMessage();
+        view.displayErrorMessage("Registration failed due to exception: " + exception.getMessage());
     }
 }

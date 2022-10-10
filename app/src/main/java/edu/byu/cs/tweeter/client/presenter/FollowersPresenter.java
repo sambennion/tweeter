@@ -5,12 +5,13 @@ import android.util.Log;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.observer.GetFollowersObserver;
+import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
 import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowersPresenter extends PagedUserPresenter implements UserService.GetUserObserver, GetFollowersObserver {
+public class FollowersPresenter extends PagedUserPresenter implements GetUserObserver, GetFollowersObserver {
     private static final String LOG_TAG = "FollowersPresenter";
 
     @Override

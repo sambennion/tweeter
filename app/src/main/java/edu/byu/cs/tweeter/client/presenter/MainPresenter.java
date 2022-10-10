@@ -12,6 +12,7 @@ import edu.byu.cs.tweeter.client.observer.FollowObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
+import edu.byu.cs.tweeter.client.observer.LogoutObserver;
 import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
 import edu.byu.cs.tweeter.client.observer.UnfollowObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
@@ -22,7 +23,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
-        FollowObserver, PostStatusObserver, UserService.LogoutObserver,
+        FollowObserver, PostStatusObserver, LogoutObserver,
         GetFollowersCountObserver, GetFollowingCountObserver {
     private final MainPresenter.View view;
 
@@ -58,46 +59,19 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
 
     @Override
     public void handleUnfollowSuccess() {
-
         view.updateFollowingsFollowers(true);
     }
-
-//    @Override
-//    public void handleUnfollowFailure(String message) {
-//        view.displayErrorMessage("Failed to unfollow: " + message);
-//    }
-//
-//    @Override
-//    public void handleUnfollowException(Exception ex) {
-//        view.displayErrorMessage("Failed to unfollow because of an exception: " + ex.getMessage());
-//    }
 
     @Override
     public void handleFollowSuccess() {
         view.updateFollowingsFollowers(false);
     }
 
-//    @Override
-//    public void handleFollowFailure(String message) {
-//        view.displayErrorMessage("Failed to follow: " + message);
-//
-//    }
-//
-//    @Override
-//    public void handleFollowException(Exception ex) {
-//        view.displayErrorMessage("Failed to follow because of an exception: " + ex.getMessage());
-//    }
-
     @Override
     public void handleEnableFollowButton() {
         view.enableFollowButton();
     }
 
-
-//    @Override
-//    public void handleSuccess(List<User> followees, boolean hasMorePages) {
-//
-//    }
 
     @Override
     public void handleFollowerCountSuccess(int count) {
@@ -115,7 +89,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
 
     @Override
     public void handleException(Exception ex) {
-        view.displayErrorMessage("Failed to determine following relationship because of exception: " + ex.getMessage());
+        view.displayErrorMessage("Exception: " + ex.getMessage());
     }
 
     public void initiateLogout(AuthToken currUserAuthToken) {
@@ -129,11 +103,6 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     @Override
     public void logoutSucceeded() {
         view.logoutUser();
-    }
-
-    @Override
-    public void logoutFailed(String message) {
-        view.displayErrorMessage(message);
     }
 
     public void initiatePost(String post, User currUser) {

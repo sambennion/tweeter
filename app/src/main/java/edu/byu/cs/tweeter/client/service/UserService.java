@@ -17,6 +17,10 @@ import edu.byu.cs.tweeter.client.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.backgroundTask.RegisterTask;
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.observer.GetUserObserver;
+import edu.byu.cs.tweeter.client.observer.LoginObserver;
+import edu.byu.cs.tweeter.client.observer.LogoutObserver;
+import edu.byu.cs.tweeter.client.observer.RegisterObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -24,22 +28,22 @@ public class UserService extends Service{
 
 
 
-    public interface LoginObserver{
-        void loginSucceeded(User user, AuthToken authToken);
-        void loginFailed(String message);
-    }
-    public interface RegisterObserver{
-        void registerSucceeded(User user, AuthToken authToken);
-        void registerFailed(String message);
-    }
-    public interface LogoutObserver{
-        void logoutSucceeded();
-        void logoutFailed(String message);
-    }
-    public interface GetUserObserver {
-        void getUserSucceeded(User user);
-        void getUserFailed(String message);
-    }
+//    public interface LoginObserver{
+//        void loginSucceeded(User user, AuthToken authToken);
+//        void loginFailed(String message);
+//    }
+//    public interface RegisterObserver{
+//        void registerSucceeded(User user, AuthToken authToken);
+//        void registerFailed(String message);
+//    }
+//    public interface LogoutObserver{
+//        void logoutSucceeded();
+//        void logoutFailed(String message);
+//    }
+//    public interface GetUserObserver {
+//        void getUserSucceeded(User user);
+//        void getUserFailed(String message);
+//    }
     public void getUser(String userAlias, GetUserObserver observer) {
         runTask(new GetUserTask(Cache.getInstance().getCurrUserAuthToken(), userAlias, new GetUserHandler(observer)));
     }
@@ -71,11 +75,11 @@ public class UserService extends Service{
 
             } else if (msg.getData().containsKey(LoginTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(LoginTask.MESSAGE_KEY);
-                observer.loginFailed("Failed to login " + message);
+                observer.handleFailure("Failed to login " + message);
 
             } else if (msg.getData().containsKey(LoginTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(LoginTask.EXCEPTION_KEY);
-                observer.loginFailed("Failed to login because of exception: " + ex.getMessage());
+                observer.handleException(ex);
             }
         }
     }
@@ -93,11 +97,11 @@ public class UserService extends Service{
 
             } else if (msg.getData().containsKey(LoginTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(LoginTask.MESSAGE_KEY);
-                observer.logoutFailed("Failed to logout " + message);
+                observer.handleFailure("Failed to logout " + message);
 
             } else if (msg.getData().containsKey(LoginTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(LoginTask.EXCEPTION_KEY);
-                observer.logoutFailed("Failed to login because of exception: " + ex.getMessage());
+                observer.handleException(ex);
             }
         }
     }
@@ -135,11 +139,11 @@ public class UserService extends Service{
 
             } else if (msg.getData().containsKey(RegisterTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(RegisterTask.MESSAGE_KEY);
-                observer.registerFailed("Failed to register " + message);
+                observer.handleFailure("Failed to register " + message);
 
             } else if (msg.getData().containsKey(RegisterTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(RegisterTask.EXCEPTION_KEY);
-                observer.registerFailed("Failed to register due to exception " + ex.getMessage());
+                observer.handleException(ex);
             }
         }
     }
@@ -161,7 +165,7 @@ public class UserService extends Service{
                 observer.getUserFailed("Failed to get user's profile: " + message);
             } else if (msg.getData().containsKey(GetUserTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(GetUserTask.EXCEPTION_KEY);
-                observer.getUserFailed("Failed to get user's profile because of exception: " + ex.getMessage());
+                observer.getUserFailed("Failed to get user due to exception: " + ex.getMessage());
             }
         }
     }

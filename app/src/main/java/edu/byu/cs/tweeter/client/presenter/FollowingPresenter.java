@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.observer.GetFollowingObserver;
+import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
 import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -13,7 +14,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 /**
  * The presenter for the "following" functionality of the application.
  */
-public class FollowingPresenter extends PagedUserPresenter implements GetFollowingObserver, UserService.GetUserObserver {
+public class FollowingPresenter extends PagedUserPresenter implements GetFollowingObserver, GetUserObserver {
 
     private static final String LOG_TAG = "FollowingPresenter";
 //    public static final int PAGE_SIZE = 10;

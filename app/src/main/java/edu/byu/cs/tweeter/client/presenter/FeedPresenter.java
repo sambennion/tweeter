@@ -5,12 +5,13 @@ import android.util.Log;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.observer.GetStatusesObserver;
+import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FeedPresenter extends PagedStatusPresenter implements GetStatusesObserver, UserService.GetUserObserver {
+public class FeedPresenter extends PagedStatusPresenter implements GetStatusesObserver, GetUserObserver {
     private static final String LOG_TAG = "FeedPresenter";
 //    private static final int PAGE_SIZE = 10;
 
