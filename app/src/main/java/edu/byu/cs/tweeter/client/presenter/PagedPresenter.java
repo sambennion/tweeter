@@ -50,7 +50,12 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
         isLoading = loading;
     }
 
-
+    public T getLastItem(){
+        return lastItem;
+    }
+    public void setLastItem(T lastItem){
+        this.lastItem = lastItem;
+    }
 
     public void getUser(String alias){
 

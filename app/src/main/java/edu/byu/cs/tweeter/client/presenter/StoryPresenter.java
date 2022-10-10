@@ -27,20 +27,15 @@ public class StoryPresenter extends PagedStatusPresenter implements StatusServic
         return "Story: ";
     }
 
-
     @Override
     public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
-        setLastStatus((statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null);
+        setLastItem((statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null);
         setHasMorePages(hasMorePages);
 
         view.setLoading(false);
         view.addItems(statuses);
         setLoading(false);
 
-    }
-
-    private void setLastStatus(Status status) {
-        this.lastItem = status;
     }
 
     @Override

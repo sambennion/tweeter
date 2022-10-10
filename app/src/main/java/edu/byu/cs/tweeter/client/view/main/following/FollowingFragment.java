@@ -26,6 +26,7 @@ import java.util.List;
 import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.presenter.FollowingPresenter;
+import edu.byu.cs.tweeter.client.presenter.PagedUserPresenter;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -34,7 +35,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 /**
  * Implements the "Following" tab.
  */
-public class FollowingFragment extends Fragment implements FollowingPresenter.View{
+public class FollowingFragment extends Fragment implements PagedUserPresenter.PagedUserView{
 
     private static final String USER_KEY = "UserKey";
 
@@ -112,6 +113,11 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void clearInfoMessage() {
+
+    }
+
 
     @Override
     public void navigateToUser(User user) {
@@ -121,10 +127,10 @@ public class FollowingFragment extends Fragment implements FollowingPresenter.Vi
         startActivity(intent);
     }
 
-    @Override
-    public void removeDummyFollower() {
-
-    }
+//    @Override
+//    public void removeDummyFollower() {
+//
+//    }
 
 
     /**
