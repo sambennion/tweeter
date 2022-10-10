@@ -19,7 +19,7 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
 
         void addItems(List<T> items);
 
-        void navigateToUser(User user);
+//        void navigateToUser(User user);
 
         void setHasMorePages(boolean hasMorePages);
 

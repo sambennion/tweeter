@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.client.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.backgroundTask.LoginTask;
@@ -22,7 +20,7 @@ import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class UserService {
+public class UserService extends Service{
 
 
 
@@ -41,27 +39,17 @@ public class UserService {
     public interface GetUserObserver {
         void getUserSucceeded(User user);
         void getUserFailed(String message);
-//        void loginSucceeded(User user, AuthToken authToken);
-//        void loginFailed(String message);
     }
     public void getUser(String userAlias, GetUserObserver observer) {
-        GetUserTask getUserTask = new GetUserTask(Cache.getInstance().getCurrUserAuthToken(),
-                userAlias, new UserService.GetUserHandler(observer));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getUserTask);
+        runTask(new GetUserTask(Cache.getInstance().getCurrUserAuthToken(), userAlias, new GetUserHandler(observer)));
     }
 
     public void login(String username, String password, LoginObserver observer ){
         //Run LoginTask in the background to log the user in
-        LoginTask loginTask = new LoginTask(username,password,new LoginHandler(observer));
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(loginTask);
+        runTask(new LoginTask(username, password, new LoginHandler(observer)));
     }
     public void logout(AuthToken authToken, LogoutObserver observer){
-        LogoutTask logoutTask = new LogoutTask(authToken, new LogoutHandler(observer));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(logoutTask);
+        runTask(new LogoutTask(authToken, new LogoutHandler(observer)));
     }
 
     private class LoginHandler extends Handler {
@@ -124,11 +112,8 @@ public class UserService {
         // Intentionally, Use the java Base64 encoder so it is compatible with M4.
         String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
 
-        RegisterTask registerTask = new RegisterTask(firstName, lastName,
-                alias, password, imageBytesBase64, new RegisterHandler(observer));
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(registerTask);
+        runTask(new RegisterTask(firstName, lastName, alias, password, imageBytesBase64, new RegisterHandler(observer)));
     }
 
     private class RegisterHandler extends Handler {

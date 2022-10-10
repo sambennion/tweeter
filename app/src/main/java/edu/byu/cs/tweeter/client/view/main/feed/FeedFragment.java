@@ -124,11 +124,6 @@ public class FeedFragment extends Fragment implements PagedStatusPresenter.Paged
     }
 
     @Override
-    public void clearInfoMessage() {
-
-    }
-
-    @Override
     public void navigateToUser(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);

@@ -6,11 +6,12 @@ import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class RegisterPresenter implements UserService.RegisterObserver {
-    private View view;
+public class RegisterPresenter extends SignInPresenter implements UserService.RegisterObserver {
+//    private View view;
 
-    public RegisterPresenter(RegisterPresenter.View view){
-        this.view = view;
+    public RegisterPresenter(SignInPresenter.SignInView view){
+        super(view);
+//        this.view = view;
     }
 
     public void initiateRegister(String firstName, String lastName, String alias, String password, ImageView image){
@@ -24,9 +25,6 @@ public class RegisterPresenter implements UserService.RegisterObserver {
         else{
             view.displayErrorMessage(message);
         }
-
-
-
 
     }
     public String validateRegistration(String firstName, String lastName, String alias, String password, ImageView image) {
@@ -54,28 +52,15 @@ public class RegisterPresenter implements UserService.RegisterObserver {
         }
         return null;
     }
-
     @Override
     public void registerSucceeded(User user, AuthToken authToken) {
         view.displayInfoMessage("Hello " + user.firstName);
         view.clearErrorMessage();
         view.navigateToUser(user);
     }
-
     @Override
     public void registerFailed(String message) {
         view.clearInfoMessage();
         view.displayErrorMessage(message);
-    }
-
-    public interface View{
-        void displayInfoMessage(String message);
-        void clearInfoMessage();
-
-        void displayErrorMessage(String message);
-        void clearErrorMessage();
-
-        void navigateToUser(User user);
-
     }
 }

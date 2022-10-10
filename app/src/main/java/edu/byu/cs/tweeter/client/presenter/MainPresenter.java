@@ -6,21 +6,37 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.observer.FollowObserver;
+import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
+import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
+import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
+import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
+import edu.byu.cs.tweeter.client.observer.UnfollowObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
 import edu.byu.cs.tweeter.client.service.StatusService;
 import edu.byu.cs.tweeter.client.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.Follow;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter implements FollowService.IsFollowerObserver, FollowService.UnfollowObserver,
-        FollowService.FollowObserver, StatusService.PostStatusObserver, UserService.LogoutObserver,
-        FollowService.GetFollowersCountObserver, FollowService.GetFollowingCountObserver {
+public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
+        FollowObserver, PostStatusObserver, UserService.LogoutObserver,
+        GetFollowersCountObserver, GetFollowingCountObserver {
     private final MainPresenter.View view;
+
+    public interface View {
+        void displayFollowerCount(int count);
+        void displayFollowingCount(int count);
+        void displayErrorMessage(String message);
+        void displayInfoMessage(String message);
+        void displayFollowingButton();
+        void displayFollowButton();
+        void logoutUser();
+        void enableFollowButton();
+        void updateFollowingsFollowers(boolean isRemoved);
+    }
 
     public MainPresenter(View view) {
         this.view = view;
@@ -46,31 +62,31 @@ public class MainPresenter implements FollowService.IsFollowerObserver, FollowSe
         view.updateFollowingsFollowers(true);
     }
 
-    @Override
-    public void handleUnfollowFailure(String message) {
-        view.displayErrorMessage("Failed to unfollow: " + message);
-    }
-
-    @Override
-    public void handleUnfollowException(Exception ex) {
-        view.displayErrorMessage("Failed to unfollow because of an exception: " + ex.getMessage());
-    }
+//    @Override
+//    public void handleUnfollowFailure(String message) {
+//        view.displayErrorMessage("Failed to unfollow: " + message);
+//    }
+//
+//    @Override
+//    public void handleUnfollowException(Exception ex) {
+//        view.displayErrorMessage("Failed to unfollow because of an exception: " + ex.getMessage());
+//    }
 
     @Override
     public void handleFollowSuccess() {
         view.updateFollowingsFollowers(false);
     }
 
-    @Override
-    public void handleFollowFailure(String message) {
-        view.displayErrorMessage("Failed to follow: " + message);
-
-    }
-
-    @Override
-    public void handleFollowException(Exception ex) {
-        view.displayErrorMessage("Failed to follow because of an exception: " + ex.getMessage());
-    }
+//    @Override
+//    public void handleFollowFailure(String message) {
+//        view.displayErrorMessage("Failed to follow: " + message);
+//
+//    }
+//
+//    @Override
+//    public void handleFollowException(Exception ex) {
+//        view.displayErrorMessage("Failed to follow because of an exception: " + ex.getMessage());
+//    }
 
     @Override
     public void handleEnableFollowButton() {
@@ -191,17 +207,7 @@ public class MainPresenter implements FollowService.IsFollowerObserver, FollowSe
         }
     }
 
-    public interface View {
-        void displayFollowerCount(int count);
-        void displayFollowingCount(int count);
-        void displayErrorMessage(String message);
-        void displayInfoMessage(String message);
-        void displayFollowingButton();
-        void displayFollowButton();
-        void logoutUser();
-        void enableFollowButton();
-        void updateFollowingsFollowers(boolean isRemoved);
-    }
+
 
     public void initiateIsFollowerTask(AuthToken authToken, User user, User selected){
         new FollowService().isFollowers(authToken, user, selected, this);

@@ -113,11 +113,6 @@ public class FollowingFragment extends Fragment implements PagedUserPresenter.Pa
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void clearInfoMessage() {
-
-    }
-
 
     @Override
     public void navigateToUser(User user) {
@@ -126,11 +121,6 @@ public class FollowingFragment extends Fragment implements PagedUserPresenter.Pa
 
         startActivity(intent);
     }
-
-//    @Override
-//    public void removeDummyFollower() {
-//
-//    }
 
 
     /**
@@ -158,8 +148,6 @@ public class FollowingFragment extends Fragment implements PagedUserPresenter.Pa
                 @Override
                 public void onClick(View view) {
                     presenter.initiateGetUser(userAlias.getText().toString());
-
-//                    Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                 }
             });
         }
