@@ -210,7 +210,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
 
 
     public void initiateIsFollowerTask(AuthToken authToken, User user, User selected){
-        new FollowService().isFollowers(authToken, user, selected, this);
+        new FollowService().isFollower(authToken, user, selected, this);
     }
     public void initiateUnfollow(AuthToken authToken, User user){
         new FollowService().unfollow(authToken, user, this);

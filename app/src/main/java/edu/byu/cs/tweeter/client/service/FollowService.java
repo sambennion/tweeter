@@ -41,7 +41,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class FollowService extends Service{
 
 
-    
+
     /**
      * Creates an instance.
      */
@@ -64,7 +64,7 @@ public class FollowService extends Service{
     public void getFollowers(AuthToken authToken, User targetUser, int limit, User lastFollower, GetFollowersObserver observer) {
         runTask(new GetFollowersTask(authToken, targetUser, limit, lastFollower, new GetFollowersHandler(observer)));
     }
-    public void isFollowers(AuthToken authToken, User user, User selected, IsFollowerObserver observer){
+    public void isFollower(AuthToken authToken, User user, User selected, IsFollowerObserver observer){
         runTask(new IsFollowerTask(authToken, user, selected, new IsFollowerHandler(observer)));
     }
     public void unfollow(AuthToken authToken, User user, UnfollowObserver observer){
