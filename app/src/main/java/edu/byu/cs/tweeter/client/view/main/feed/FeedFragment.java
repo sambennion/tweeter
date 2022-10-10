@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -30,12 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import edu.byu.cs.client.R;
-import edu.byu.cs.tweeter.client.backgroundTask.GetFeedTask;
-import edu.byu.cs.tweeter.client.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.presenter.FeedPresenter;
 import edu.byu.cs.tweeter.client.presenter.PagedStatusPresenter;
@@ -48,7 +43,7 @@ import edu.byu.cs.tweeter.model.domain.User;
  * Implements the "Feed" tab.
  */
 
-//public class FeedFragment extends Fragment implements FeedPresenter.View{
+
 public class FeedFragment extends Fragment implements PagedStatusPresenter.PagedStatusView{
     private static final String LOG_TAG = "FeedFragment";
     private static final String USER_KEY = "UserKey";
@@ -205,11 +200,6 @@ public class FeedFragment extends Fragment implements PagedStatusPresenter.Paged
                             startActivity(intent);
                         } else {
                             presenter.initiateGetUser(clickable);
-//                            GetUserTask getUserTask = new GetUserTask(Cache.getInstance().getCurrUserAuthToken(),
-//                                    clickable, new GetUserHandler());
-//                            ExecutorService executor = Executors.newSingleThreadExecutor();
-//                            executor.execute(getUserTask);
-//                            Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                         }
                     }
 

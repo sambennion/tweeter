@@ -13,42 +13,14 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class FeedPresenter extends PagedStatusPresenter implements StatusService.GetStatusesObserver, UserService.GetUserObserver {
     private static final String LOG_TAG = "FeedPresenter";
     private static final int PAGE_SIZE = 10;
-//    private final FeedPresenter.View view;
-//    private final User user;
-//    private final AuthToken authToken;
 
-    private Status lastStatus;
-    private boolean hasMorePages = true;
-    private boolean isLoading = false;
 
     public FeedPresenter(PagedStatusPresenter.PagedStatusView view, User user, AuthToken authToken){
         super(view, user, authToken);
-//        this.view = view;
-//        this.user = user;
-//        this.authToken = authToken;
     }
-    /**
-     * The interface by which this presenter communicates with it's view.
-     */
-//    public interface View {
-////        void setLoading(boolean value);
-////        void setHasMorePages(boolean hasMorePages);
-////        void addItems(List<Status> newStatuses);
-////        void displayErrorMessage(String message);
-////        void displayInfoMessage(String message);
-////        void navigateToUser(User user);
-//    }
 
-//    private void setLoading(boolean loading) {
-//        isLoading = loading;
-//    }
     private void setLastStatus(Status status) {
-        this.lastStatus = status;
-    }
-
-    private void setHasMorePages(boolean hasMorePages){
-        this.hasMorePages = hasMorePages;
-        view.setHasMorePages(hasMorePages);
+        this.lastItem = status;
     }
 
     @Override
@@ -91,14 +63,6 @@ public class FeedPresenter extends PagedStatusPresenter implements StatusService
         view.displayErrorMessage(message);
     }
 
-    public void loadMoreItems() {
-        if (!isLoading && hasMorePages) {
-            setLoading(true);
-            view.setLoading(true);
-            getItems(authToken, targetUser, PAGE_SIZE, lastStatus);
-        }
-    }
-
     @Override
     protected void getItems(AuthToken authToken, User targetUser, int pageSize, Status lastItem) {
         getStatusService().getFeed(authToken, targetUser, pageSize, lastItem, this);
@@ -110,16 +74,8 @@ public class FeedPresenter extends PagedStatusPresenter implements StatusService
     }
 
     public void initiateGetUser(String alias){
-
         view.displayInfoMessage("Getting user's profile...");
         new UserService().getUser(alias, this);
     }
-//    public void getFeed(AuthToken authToken, User targetUser, int limit, Status lastStatus) {
-//        getStatusService().getFeed(authToken, targetUser, limit, lastStatus, this);
-//    }
-    private StatusService getStatusService(){
-        return new StatusService();
-    }
-
 
 }
