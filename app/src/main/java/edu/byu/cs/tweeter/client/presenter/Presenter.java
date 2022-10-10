@@ -2,7 +2,7 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.model.domain.User;
 
-public abstract class Presenter<T extends Presenter.View>{
+public abstract class Presenter<T extends Presenter.View> {
     protected T view;
 
     public Presenter(T view){
@@ -16,4 +16,5 @@ public abstract class Presenter<T extends Presenter.View>{
         void navigateToUser(User user);
 
     }
+
 }

@@ -159,7 +159,7 @@ public class FeedFragment extends Fragment implements PagedStatusPresenter.Paged
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.initiateGetUser(userAlias.getText().toString());
+                    presenter.getUser(userAlias.getText().toString());
                 }
             });
         }
@@ -194,7 +194,7 @@ public class FeedFragment extends Fragment implements PagedStatusPresenter.Paged
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
                             startActivity(intent);
                         } else {
-                            presenter.initiateGetUser(clickable);
+                            presenter.getUser(clickable);
                         }
                     }
 

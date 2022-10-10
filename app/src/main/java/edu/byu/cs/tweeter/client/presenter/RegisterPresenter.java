@@ -8,11 +8,9 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class RegisterPresenter extends SignInPresenter implements RegisterObserver {
-//    private View view;
 
     public RegisterPresenter(SignInPresenter.SignInView view){
         super(view);
-//        this.view = view;
     }
 
     public void initiateRegister(String firstName, String lastName, String alias, String password, ImageView image){
@@ -52,23 +50,5 @@ public class RegisterPresenter extends SignInPresenter implements RegisterObserv
             return ("Profile image must be uploaded.");
         }
         return null;
-    }
-    @Override
-    public void registerSucceeded(User user, AuthToken authToken) {
-        view.displayInfoMessage("Hello " + user.firstName);
-        view.clearErrorMessage();
-        view.navigateToUser(user);
-    }
-
-    @Override
-    public void handleFailure(String message) {
-        view.clearInfoMessage();
-        view.displayErrorMessage(message);
-    }
-
-    @Override
-    public void handleException(Exception exception) {
-        view.clearInfoMessage();
-        view.displayErrorMessage("Registration failed due to exception: " + exception.getMessage());
     }
 }

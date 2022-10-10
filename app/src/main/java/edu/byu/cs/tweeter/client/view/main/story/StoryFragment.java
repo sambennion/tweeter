@@ -157,7 +157,7 @@ public class StoryFragment extends Fragment implements PagedStatusPresenter.Page
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.initiateGetUser(userAlias.getText().toString());
+                    presenter.getUser(userAlias.getText().toString());
                 }
             });
         }
@@ -195,7 +195,7 @@ public class StoryFragment extends Fragment implements PagedStatusPresenter.Page
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
                             startActivity(intent);
                         } else {
-                            presenter.initiateGetUser(clickable);
+                            presenter.getUser(clickable);
 //                            GetUserTask getUserTask = new GetUserTask(Cache.getInstance().getCurrUserAuthToken(),
 //                                    clickable, new GetUserHandler());
 //                            ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -412,7 +412,6 @@ public class StoryFragment extends Fragment implements PagedStatusPresenter.Page
                     final Handler handler = new Handler(Looper.getMainLooper());
                     handler.postDelayed(() -> {
                         presenter.loadMoreItems();
-//                            storyRecyclerViewAdapter.loadMoreItems();
                     }, 0);
                 }
             }

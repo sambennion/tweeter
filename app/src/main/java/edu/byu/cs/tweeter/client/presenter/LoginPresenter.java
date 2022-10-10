@@ -34,22 +34,4 @@ public class LoginPresenter extends SignInPresenter implements LoginObserver {
         }
         return null;
     }
-    @Override
-    public void loginSucceeded(User user, AuthToken authToken) {
-        view.displayInfoMessage("Hello " + user.firstName);
-        view.clearErrorMessage();
-        view.navigateToUser(user);
-    }
-
-    @Override
-    public void handleFailure(String message) {
-        view.clearInfoMessage();
-        view.displayErrorMessage(message);
-    }
-
-    @Override
-    public void handleException(Exception exception) {
-        view.clearInfoMessage();
-        view.displayErrorMessage("Exception during login: " + exception.getMessage());
-    }
 }

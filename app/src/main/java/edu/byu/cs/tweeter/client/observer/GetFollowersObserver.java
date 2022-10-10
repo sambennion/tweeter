@@ -4,6 +4,6 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
 
-public interface GetFollowersObserver extends ServiceObserver {
-    void handleSuccess(List<User> followees, boolean hasMorePages);
+public interface GetFollowersObserver extends PagedObserver<User> {
+//    void handleSuccess(List<User> followees, boolean hasMorePages);
 }

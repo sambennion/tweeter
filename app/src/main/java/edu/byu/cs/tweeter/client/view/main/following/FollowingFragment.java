@@ -147,7 +147,7 @@ public class FollowingFragment extends Fragment implements PagedUserPresenter.Pa
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.initiateGetUser(userAlias.getText().toString());
+                    presenter.getUser(userAlias.getText().toString());
                 }
             });
         }
