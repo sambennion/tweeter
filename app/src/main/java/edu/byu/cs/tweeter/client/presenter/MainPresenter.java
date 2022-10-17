@@ -38,6 +38,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         void enableFollowButton();
         void updateFollowingsFollowers(boolean isRemoved);
     }
+    private UserService userService;
 
     public MainPresenter(View view) {
         this.view = view;
@@ -93,7 +94,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     }
 
     public void initiateLogout(AuthToken currUserAuthToken) {
-        new UserService().logout(currUserAuthToken, this);
+        getUserService().logout(currUserAuthToken, this);
     }
     public void initiateGetFollowersAndFollowingCountTask(AuthToken currUserAuthToken, User user) {
         new FollowService().getFollowersAndFollowingCount(currUserAuthToken, user, this, this);
@@ -102,6 +103,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
 
     @Override
     public void logoutSucceeded() {
+        view.displayInfoMessage("Logging out...");
         view.logoutUser();
     }
 
@@ -189,5 +191,12 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     }
     public void initiatePostStatus(AuthToken authToken, Status status){
         new StatusService().postStatus(authToken, status, this);
+    }
+
+    public UserService getUserService(){
+        if (this.userService == null){
+            this.userService = new UserService();
+        }
+        return this.userService;
     }
 }
