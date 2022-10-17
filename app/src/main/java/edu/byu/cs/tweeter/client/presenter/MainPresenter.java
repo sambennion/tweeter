@@ -248,12 +248,12 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver,
 
         @Override
         public void handleFailure(String message) {
-            displayErrorMessage("Failed to unfollow: " + message);
+            displayErrorMessage("Failed to follow: " + message);
         }
 
         @Override
         public void handleException(Exception exception) {
-            displayErrorMessage("Failed to unfollow due to exception: " + exception.getMessage());
+            displayErrorMessage("Failed to follow due to exception: " + exception.getMessage());
         }
     }
 
