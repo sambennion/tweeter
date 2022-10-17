@@ -1,25 +1,11 @@
 package edu.byu.cs.tweeter.client.service;
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.backgroundTask.IsFollowerTask;
-import edu.byu.cs.tweeter.client.backgroundTask.PostStatusTask;
 import edu.byu.cs.tweeter.client.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.FollowHandler;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.GetFolloweesHandler;
@@ -28,18 +14,14 @@ import edu.byu.cs.tweeter.client.backgroundTask.handler.GetFollowersHandler;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.GetFollowingCountHandler;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.IsFollowerHandler;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.UnfollowHandler;
-import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.observer.FollowObserver;
+import edu.byu.cs.tweeter.client.observer.IFollowObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowersObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowingObserver;
 import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
-import edu.byu.cs.tweeter.client.observer.UnfollowObserver;
-import edu.byu.cs.tweeter.client.presenter.FollowersPresenter;
-import edu.byu.cs.tweeter.client.view.main.MainActivity;
+import edu.byu.cs.tweeter.client.observer.IUnfollowObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
@@ -74,11 +56,11 @@ public class FollowService extends Service{
     public void isFollower(AuthToken authToken, User user, User selected, IsFollowerObserver observer){
         runTask(new IsFollowerTask(authToken, user, selected, new IsFollowerHandler(observer)));
     }
-    public void unfollow(AuthToken authToken, User user, UnfollowObserver observer){
+    public void unfollow(AuthToken authToken, User user, IUnfollowObserver observer){
         runTask(new UnfollowTask(authToken,
                 user, new UnfollowHandler(observer)));
     }
-    public void follow(AuthToken authToken, User user, FollowObserver observer){
+    public void follow(AuthToken authToken, User user, IFollowObserver observer){
         runTask(new FollowTask(authToken,
                 user, new FollowHandler(observer)));
     }

@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.observer.FollowObserver;
+import edu.byu.cs.tweeter.client.observer.IFollowObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.observer.LogoutObserver;
 import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
-import edu.byu.cs.tweeter.client.observer.UnfollowObserver;
+import edu.byu.cs.tweeter.client.observer.IUnfollowObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
 import edu.byu.cs.tweeter.client.service.StatusService;
 import edu.byu.cs.tweeter.client.service.UserService;
@@ -22,8 +22,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
-        FollowObserver, LogoutObserver,
+public class MainPresenter implements IsFollowerObserver, LogoutObserver,
         GetFollowersCountObserver, GetFollowingCountObserver {
     private final MainPresenter.View view;
 
@@ -54,23 +53,9 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
             view.displayFollowButton();
         }
     }
-
-
-    @Override
-    public void handleUnfollowSuccess() {
-        view.updateFollowingsFollowers(true);
-    }
-
-    @Override
-    public void handleFollowSuccess() {
-        view.updateFollowingsFollowers(false);
-    }
-
-    @Override
-    public void handleEnableFollowButton() {
+    public void enableFollowButton() {
         view.enableFollowButton();
     }
-
 
     @Override
     public void handleFollowerCountSuccess(int count) {
@@ -99,6 +84,9 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     }
     public void displayErrorMessage(String message){
         view.displayErrorMessage(message);
+    }
+    public void displayInfoMessage(String message){
+        view.displayInfoMessage(message);
     }
     @Override
     public void logoutSucceeded() {
@@ -186,10 +174,10 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         getFollowService().isFollower(authToken, user, selected, this);
     }
     public void initiateUnfollow(AuthToken authToken, User user){
-        getFollowService().unfollow(authToken, user, this);
+        getFollowService().unfollow(authToken, user, new UnfollowObserver());
     }
     public void initiateFollow(AuthToken authToken, User user){
-        getFollowService().follow(authToken, user, this);
+        getFollowService().follow(authToken, user, new FollowObserver());
     }
 
 
@@ -225,4 +213,48 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
             displayErrorMessage("Failed to post status because of exception: " + exception.getMessage());
         }
     }
+    public class UnfollowObserver implements IUnfollowObserver{
+
+        @Override
+        public void handleEnableFollowButton() {
+            enableFollowButton();
+        }
+
+        @Override
+        public void handleSuccess() {
+            view.updateFollowingsFollowers(true);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to unfollow: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to unfollow due to exception: " + exception.getMessage());
+        }
+    }
+    public class FollowObserver implements IFollowObserver{
+        @Override
+        public void handleEnableFollowButton() {
+            enableFollowButton();
+        }
+
+        @Override
+        public void handleSuccess() {
+            view.updateFollowingsFollowers(false);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to unfollow: " + message);
+        }
+
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to unfollow due to exception: " + exception.getMessage());
+        }
+    }
+
 }

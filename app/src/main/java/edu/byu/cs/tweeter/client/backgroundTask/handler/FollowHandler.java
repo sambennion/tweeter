@@ -2,16 +2,16 @@ package edu.byu.cs.tweeter.client.backgroundTask.handler;
 
 import android.os.Bundle;
 
-import edu.byu.cs.tweeter.client.observer.FollowObserver;
+import edu.byu.cs.tweeter.client.observer.IFollowObserver;
 
-public class FollowHandler extends BackgroundTaskHandler<FollowObserver>{
-    public FollowHandler(FollowObserver observer) {
+public class FollowHandler extends BackgroundTaskHandler<IFollowObserver>{
+    public FollowHandler(IFollowObserver observer) {
         super(observer);
     }
 
     @Override
-    protected void handleSuccessMessage(FollowObserver observer, Bundle data) {
-        observer.handleFollowSuccess();
+    protected void handleSuccessMessage(IFollowObserver observer, Bundle data) {
+        observer.handleSuccess();
         observer.handleEnableFollowButton();
     }
 }
