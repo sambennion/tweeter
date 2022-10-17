@@ -110,7 +110,7 @@ public class MainPresenterUnitTest {
                 assert invocation.getArgument(1, Status.class).post.equals("This is a post");
                 PostStatusObserver observer = invocation.getArgument(2, PostStatusObserver.class);
                 assert observer != null;
-                observer.handleFailure("Failed to post status");
+                observer.handleFailure("You didn't post a good enough status");
                 return null;
             }
         };
@@ -119,7 +119,7 @@ public class MainPresenterUnitTest {
         mainPresenterSpy.initiatePost("This is a post", Cache.getInstance().getCurrUser());
 
         Mockito.verify(mockView, Mockito.times(0)).displayInfoMessage("Successfully Posted!");
-        Mockito.verify(mockView).displayErrorMessage("Failed to post status");
+        Mockito.verify(mockView).displayErrorMessage("Failed to post status: You didn't post a good enough status");
     }
     @Test
     public void testPost_postException(){
@@ -139,8 +139,8 @@ public class MainPresenterUnitTest {
         mainPresenterSpy.initiatePost("This is a post", Cache.getInstance().getCurrUser());
 
         Mockito.verify(mockView, Mockito.times(0)).displayInfoMessage("Successfully Posted!");
-        Mockito.verify(mockView, Mockito.times(0)).displayErrorMessage("Failed to post status");
-        Mockito.verify(mockView).displayErrorMessage("Exception: this is an exception");
+        Mockito.verify(mockView, Mockito.times(0)).displayErrorMessage("Failed to post status: this is an exception");
+        Mockito.verify(mockView).displayErrorMessage("Failed to post status because of exception: this is an exception");
     }
 
 }

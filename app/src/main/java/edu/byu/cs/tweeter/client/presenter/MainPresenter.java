@@ -23,7 +23,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
-        FollowObserver, PostStatusObserver, LogoutObserver,
+        FollowObserver, LogoutObserver,
         GetFollowersCountObserver, GetFollowingCountObserver {
     private final MainPresenter.View view;
 
@@ -53,10 +53,6 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         } else {
             view.displayFollowButton();
         }
-    }
-    @Override
-    public void handleSuccess() {
-        view.displayInfoMessage("Successfully Posted!");
     }
 
 
@@ -101,8 +97,9 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     public void initiateGetFollowersAndFollowingCountTask(AuthToken currUserAuthToken, User user) {
         getFollowService().getFollowersAndFollowingCount(currUserAuthToken, user, this, this);
     }
-
-
+    public void displayErrorMessage(String message){
+        view.displayErrorMessage(message);
+    }
     @Override
     public void logoutSucceeded() {
         view.displayInfoMessage("Logging out...");
@@ -117,6 +114,9 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         } catch (Exception ex){
             view.displayErrorMessage("Exception while taking status input");
         }
+    }
+    public void initiatePostStatus(AuthToken authToken, Status status){
+        getStatusService().postStatus(authToken, status, new PostObserver());
     }
     public String getFormattedDateTime() throws ParseException {
         SimpleDateFormat userFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -191,9 +191,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
     public void initiateFollow(AuthToken authToken, User user){
         getFollowService().follow(authToken, user, this);
     }
-    public void initiatePostStatus(AuthToken authToken, Status status){
-        getStatusService().postStatus(authToken, status, this);
-    }
+
 
     public UserService getUserService(){
         if (this.userService == null){
@@ -212,5 +210,19 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
             this.followService = new FollowService();
         }
         return this.followService;
+    }
+    public class PostObserver implements PostStatusObserver {
+        @Override
+        public void handleSuccess() {
+            view.displayInfoMessage("Successfully Posted!");
+        }
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to post status: " + message);
+        }
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to post status because of exception: " + exception.getMessage());
+        }
     }
 }
