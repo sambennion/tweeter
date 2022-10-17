@@ -1,5 +1,5 @@
 package edu.byu.cs.tweeter.client.observer;
 
-public interface GetFollowingCountObserver extends ServiceObserver{
+public interface IGetFollowingCountObserver extends ServiceObserver{
     void handleFollowingCountSuccess(int count);
 }

@@ -1,11 +1,11 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import edu.byu.cs.tweeter.client.observer.GetFollowersObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowersObserver;
 import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowersPresenter extends PagedUserPresenter implements GetUserObserver, GetFollowersObserver {
+public class FollowersPresenter extends PagedUserPresenter implements GetUserObserver, IGetFollowersObserver {
 //    private static final String LOG_TAG = "FollowersPresenter";
 
     /**

@@ -15,11 +15,11 @@ import edu.byu.cs.tweeter.client.backgroundTask.handler.GetFollowingCountHandler
 import edu.byu.cs.tweeter.client.backgroundTask.handler.IsFollowerHandler;
 import edu.byu.cs.tweeter.client.backgroundTask.handler.UnfollowHandler;
 import edu.byu.cs.tweeter.client.observer.IFollowObserver;
-import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
-import edu.byu.cs.tweeter.client.observer.GetFollowersObserver;
-import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowersCountObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowersObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.observer.GetFollowingObserver;
-import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
+import edu.byu.cs.tweeter.client.observer.IIsFollowerObserver;
 import edu.byu.cs.tweeter.client.observer.IUnfollowObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -50,10 +50,10 @@ public class FollowService extends Service{
     public void getFollowees(AuthToken authToken, User targetUser, int limit, User lastFollowee, GetFollowingObserver observer) {
         runTask(new GetFollowingTask(authToken, targetUser, limit, lastFollowee, new GetFolloweesHandler(observer)));
     }
-    public void getFollowers(AuthToken authToken, User targetUser, int limit, User lastFollower, GetFollowersObserver observer) {
+    public void getFollowers(AuthToken authToken, User targetUser, int limit, User lastFollower, IGetFollowersObserver observer) {
         runTask(new GetFollowersTask(authToken, targetUser, limit, lastFollower, new GetFollowersHandler(observer)));
     }
-    public void isFollower(AuthToken authToken, User user, User selected, IsFollowerObserver observer){
+    public void isFollower(AuthToken authToken, User user, User selected, IIsFollowerObserver observer){
         runTask(new IsFollowerTask(authToken, user, selected, new IsFollowerHandler(observer)));
     }
     public void unfollow(AuthToken authToken, User user, IUnfollowObserver observer){
@@ -64,7 +64,7 @@ public class FollowService extends Service{
         runTask(new FollowTask(authToken,
                 user, new FollowHandler(observer)));
     }
-    public void getFollowersAndFollowingCount(AuthToken authToken, User user, GetFollowersCountObserver observer1, GetFollowingCountObserver observer2){
+    public void getFollowersAndFollowingCount(AuthToken authToken, User user, IGetFollowersCountObserver observer1, IGetFollowingCountObserver observer2){
         runTwoTasks(new GetFollowersCountTask(authToken,
                 user, new GetFollowersCountHandler(observer1)), new GetFollowingCountTask(authToken,
                 user, new GetFollowingCountHandler(observer2)));

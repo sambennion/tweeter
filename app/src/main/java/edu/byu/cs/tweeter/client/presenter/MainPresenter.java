@@ -9,10 +9,10 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.observer.IFollowObserver;
-import edu.byu.cs.tweeter.client.observer.GetFollowersCountObserver;
-import edu.byu.cs.tweeter.client.observer.GetFollowingCountObserver;
-import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
-import edu.byu.cs.tweeter.client.observer.LogoutObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowersCountObserver;
+import edu.byu.cs.tweeter.client.observer.IGetFollowingCountObserver;
+import edu.byu.cs.tweeter.client.observer.IIsFollowerObserver;
+import edu.byu.cs.tweeter.client.observer.ILogoutObserver;
 import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
 import edu.byu.cs.tweeter.client.observer.IUnfollowObserver;
 import edu.byu.cs.tweeter.client.service.FollowService;
@@ -22,8 +22,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter implements IsFollowerObserver, LogoutObserver,
-        GetFollowersCountObserver, GetFollowingCountObserver {
+public class MainPresenter{
     private final MainPresenter.View view;
 
     public interface View {
@@ -45,55 +44,23 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver,
         this.view = view;
     }
 
-    @Override
-    public void handleSuccess(boolean isFollower) {
-        if (isFollower) {
-            view.displayFollowingButton();
-        } else {
-            view.displayFollowButton();
-        }
-    }
-    public void enableFollowButton() {
+    private void enableFollowButton() {
         view.enableFollowButton();
     }
 
-    @Override
-    public void handleFollowerCountSuccess(int count) {
-        view.displayFollowerCount(count);
-    }
-    @Override
-    public void handleFollowingCountSuccess(int count) {
-        view.displayFollowingCount(count);
-    }
-
-    @Override
-    public void handleFailure(String message) {
+    private void displayErrorMessage(String message){
         view.displayErrorMessage(message);
     }
-
-    @Override
-    public void handleException(Exception ex) {
-        view.displayErrorMessage("Exception: " + ex.getMessage());
+    private void displayInfoMessage(String message){
+        view.displayInfoMessage(message);
     }
 
     public void initiateLogout(AuthToken currUserAuthToken) {
-        getUserService().logout(currUserAuthToken, this);
+        getUserService().logout(currUserAuthToken, new LogoutObserver());
     }
     public void initiateGetFollowersAndFollowingCountTask(AuthToken currUserAuthToken, User user) {
-        getFollowService().getFollowersAndFollowingCount(currUserAuthToken, user, this, this);
+        getFollowService().getFollowersAndFollowingCount(currUserAuthToken, user, new GetFollowersCountObserver(), new GetFollowingCountObserver());
     }
-    public void displayErrorMessage(String message){
-        view.displayErrorMessage(message);
-    }
-    public void displayInfoMessage(String message){
-        view.displayInfoMessage(message);
-    }
-    @Override
-    public void logoutSucceeded() {
-        view.displayInfoMessage("Logging out...");
-        view.logoutUser();
-    }
-
     public void initiatePost(String post, User currUser) {
         Status newStatus;
         try {
@@ -171,7 +138,7 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver,
 
 
     public void initiateIsFollowerTask(AuthToken authToken, User user, User selected){
-        getFollowService().isFollower(authToken, user, selected, this);
+        getFollowService().isFollower(authToken, user, selected, new IsFollowerObserver());
     }
     public void initiateUnfollow(AuthToken authToken, User user){
         getFollowService().unfollow(authToken, user, new UnfollowObserver());
@@ -199,6 +166,9 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver,
         }
         return this.followService;
     }
+
+
+    //Observers
     public class PostObserver implements PostStatusObserver {
         @Override
         public void handleSuccess() {
@@ -214,47 +184,107 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver,
         }
     }
     public class UnfollowObserver implements IUnfollowObserver{
-
         @Override
         public void handleEnableFollowButton() {
             enableFollowButton();
         }
-
         @Override
         public void handleSuccess() {
             view.updateFollowingsFollowers(true);
         }
-
         @Override
         public void handleFailure(String message) {
             displayErrorMessage("Failed to unfollow: " + message);
         }
-
         @Override
         public void handleException(Exception exception) {
             displayErrorMessage("Failed to unfollow due to exception: " + exception.getMessage());
         }
     }
+
     public class FollowObserver implements IFollowObserver{
         @Override
         public void handleEnableFollowButton() {
             enableFollowButton();
         }
-
         @Override
         public void handleSuccess() {
             view.updateFollowingsFollowers(false);
         }
-
         @Override
         public void handleFailure(String message) {
             displayErrorMessage("Failed to follow: " + message);
         }
-
         @Override
         public void handleException(Exception exception) {
             displayErrorMessage("Failed to follow due to exception: " + exception.getMessage());
         }
+    }
+
+    public class LogoutObserver implements ILogoutObserver{
+        @Override
+        public void handleSuccess() {
+            displayInfoMessage("Logging out...");
+            view.logoutUser();
+        }
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to logout: " + message);
+        }
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to logout due to exception: " + exception.getMessage());
+        }
+    }
+
+    public class IsFollowerObserver implements IIsFollowerObserver{
+        @Override
+        public void handleSuccess(boolean isFollower) {
+            if (isFollower) {
+                view.displayFollowingButton();
+            } else {
+                view.displayFollowButton();
+            }
+        }
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed while checking if is follower: " + message);
+        }
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed while checking if is follower due to exception: " + exception.getMessage());
+        }
+    }
+
+    public class GetFollowingCountObserver implements IGetFollowingCountObserver{
+        @Override
+        public void handleFollowingCountSuccess(int count) {
+            view.displayFollowingCount(count);
+        }
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to get following count: " + message);
+        }
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to get following count due to exception: " + exception.getMessage());
+        }
+    }
+
+    public class GetFollowersCountObserver implements IGetFollowersCountObserver{
+        @Override
+        public void handleFollowerCountSuccess(int count) {
+            view.displayFollowerCount(count);
+        }
+        @Override
+        public void handleFailure(String message) {
+            displayErrorMessage("Failed to get following count: " + message);
+        }
+        @Override
+        public void handleException(Exception exception) {
+            displayErrorMessage("Failed to get following count due to exception: " + exception.getMessage());
+        }
+
     }
 
 }

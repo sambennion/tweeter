@@ -3,16 +3,16 @@ package edu.byu.cs.tweeter.client.backgroundTask.handler;
 import android.os.Bundle;
 
 import edu.byu.cs.tweeter.client.backgroundTask.IsFollowerTask;
-import edu.byu.cs.tweeter.client.observer.IsFollowerObserver;
+import edu.byu.cs.tweeter.client.observer.IIsFollowerObserver;
 
-public class IsFollowerHandler extends BackgroundTaskHandler<IsFollowerObserver> {
+public class IsFollowerHandler extends BackgroundTaskHandler<IIsFollowerObserver> {
 
-    public IsFollowerHandler(IsFollowerObserver observer) {
+    public IsFollowerHandler(IIsFollowerObserver observer) {
         super(observer);
     }
 
     @Override
-    protected void handleSuccessMessage(IsFollowerObserver observer, Bundle data) {
+    protected void handleSuccessMessage(IIsFollowerObserver observer, Bundle data) {
         boolean isFollower = data.getBoolean(IsFollowerTask.IS_FOLLOWER_KEY);
         observer.handleSuccess(isFollower);
     }

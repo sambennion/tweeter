@@ -3,11 +3,7 @@ package edu.byu.cs.tweeter.client.service;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
-import android.os.Message;
 import android.widget.ImageView;
-
-import androidx.annotation.NonNull;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -23,10 +19,9 @@ import edu.byu.cs.tweeter.client.backgroundTask.handler.RegisterHandler;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.observer.LoginObserver;
-import edu.byu.cs.tweeter.client.observer.LogoutObserver;
+import edu.byu.cs.tweeter.client.observer.ILogoutObserver;
 import edu.byu.cs.tweeter.client.observer.RegisterObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.User;
 
 public class UserService extends Service{
 
@@ -38,7 +33,7 @@ public class UserService extends Service{
         //Run LoginTask in the background to log the user in
         runTask(new LoginTask(username, password, new LoginHandler(observer)));
     }
-    public void logout(AuthToken authToken, LogoutObserver observer){
+    public void logout(AuthToken authToken, ILogoutObserver observer){
         runTask(new LogoutTask(authToken, new LogoutHandler(observer)));
     }
 

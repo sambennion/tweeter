@@ -2,13 +2,12 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.observer.LogoutObserver;
+import edu.byu.cs.tweeter.client.observer.ILogoutObserver;
 import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
 import edu.byu.cs.tweeter.client.service.StatusService;
 import edu.byu.cs.tweeter.client.service.UserService;
@@ -48,8 +47,8 @@ public class MainPresenterUnitTest {
         Answer<Void> successAnswer = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                 LogoutObserver observer = invocation.getArgument(1, LogoutObserver.class);
-                 observer.logoutSucceeded();
+                 ILogoutObserver observer = invocation.getArgument(1, ILogoutObserver.class);
+                 observer.handleSuccess();
                  return null;
             }
         };
@@ -68,7 +67,7 @@ public class MainPresenterUnitTest {
         Answer<Void> failureAnswer = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
-                LogoutObserver observer = invocation.getArgument(1, LogoutObserver.class);
+                ILogoutObserver observer = invocation.getArgument(1, ILogoutObserver.class);
                 observer.handleFailure("my failure string");
                 return null;
             }
@@ -81,7 +80,7 @@ public class MainPresenterUnitTest {
 
 //        Mockito.verify(mockView).displayInfoMessage("Logging Out...");
         Mockito.verify(mockView, Mockito.times(0)).logoutUser();
-        Mockito.verify(mockView).displayErrorMessage("my failure string");
+        Mockito.verify(mockView).displayErrorMessage("Failed to logout: my failure string");
     }
     @Test
     public void testPost_postSucceeds(){
@@ -101,6 +100,7 @@ public class MainPresenterUnitTest {
         mainPresenterSpy.initiatePost("This is a post", Cache.getInstance().getCurrUser());
         Mockito.verify(mockView).displayInfoMessage("Successfully Posted!");
     }
+
     @Test
     public void testPost_postFails(){
         Answer<Void> failureAnswer = new Answer<Void>() {
