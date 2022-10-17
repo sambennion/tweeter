@@ -39,6 +39,8 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         void updateFollowingsFollowers(boolean isRemoved);
     }
     private UserService userService;
+    private StatusService statusService;
+    private FollowService followService;
 
     public MainPresenter(View view) {
         this.view = view;
@@ -97,7 +99,7 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
         getUserService().logout(currUserAuthToken, this);
     }
     public void initiateGetFollowersAndFollowingCountTask(AuthToken currUserAuthToken, User user) {
-        new FollowService().getFollowersAndFollowingCount(currUserAuthToken, user, this, this);
+        getFollowService().getFollowersAndFollowingCount(currUserAuthToken, user, this, this);
     }
 
 
@@ -181,16 +183,16 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
 
 
     public void initiateIsFollowerTask(AuthToken authToken, User user, User selected){
-        new FollowService().isFollower(authToken, user, selected, this);
+        getFollowService().isFollower(authToken, user, selected, this);
     }
     public void initiateUnfollow(AuthToken authToken, User user){
-        new FollowService().unfollow(authToken, user, this);
+        getFollowService().unfollow(authToken, user, this);
     }
     public void initiateFollow(AuthToken authToken, User user){
-        new FollowService().follow(authToken, user, this);
+        getFollowService().follow(authToken, user, this);
     }
     public void initiatePostStatus(AuthToken authToken, Status status){
-        new StatusService().postStatus(authToken, status, this);
+        getStatusService().postStatus(authToken, status, this);
     }
 
     public UserService getUserService(){
@@ -198,5 +200,17 @@ public class MainPresenter implements IsFollowerObserver, UnfollowObserver,
             this.userService = new UserService();
         }
         return this.userService;
+    }
+    public StatusService getStatusService(){
+        if (this.statusService == null){
+            this.statusService = new StatusService();
+        }
+        return this.statusService;
+    }
+    public FollowService getFollowService(){
+        if (this.followService == null){
+            this.followService = new FollowService();
+        }
+        return this.followService;
     }
 }
