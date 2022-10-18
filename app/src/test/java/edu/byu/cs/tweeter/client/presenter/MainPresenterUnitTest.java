@@ -82,6 +82,9 @@ public class MainPresenterUnitTest {
         Mockito.verify(mockView, Mockito.times(0)).logoutUser();
         Mockito.verify(mockView).displayErrorMessage("Failed to logout: my failure string");
     }
+
+
+
     @Test
     public void testPost_postSucceeds(){
         Answer<Void> successAnswer = new Answer<Void>() {

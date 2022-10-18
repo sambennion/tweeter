@@ -18,7 +18,7 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
     protected T lastItem;
     protected boolean hasMorePages = true;
     protected boolean isLoading = false;
-    protected boolean isGettingUser;
+//    protected boolean isGettingUser;
 
     public interface PagedView<T> extends Presenter.View{
         void setLoading(boolean isLoading);
@@ -27,9 +27,7 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
 
         void setHasMorePages(boolean hasMorePages);
 
-        void displayErrorMessage(String message);
 
-        void displayInfoMessage(String message);
     }
 
     public PagedPresenter(PagedView view, User user, AuthToken authToken){
