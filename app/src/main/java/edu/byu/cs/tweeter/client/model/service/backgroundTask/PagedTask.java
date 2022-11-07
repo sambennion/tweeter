@@ -45,8 +45,6 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
      */
     private boolean hasMorePages;
 
-    private ServerFacade serverFacade;
-
     protected PagedTask(AuthToken authToken, User targetUser, int limit, T lastItem, Handler messageHandler) {
         super(authToken, messageHandler);
         this.targetUser = targetUser;
@@ -89,11 +87,4 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
         msgBundle.putBoolean(MORE_PAGES_KEY, hasMorePages);
     }
 
-    public ServerFacade getServerFacade() {
-        if(serverFacade == null) {
-            serverFacade = new ServerFacade();
-        }
-
-        return new ServerFacade();
-    }
 }

@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
@@ -16,6 +17,9 @@ public abstract class BackgroundTask implements Runnable {
     public static final String EXCEPTION_KEY = "exception";
 
     protected final Handler messageHandler;
+
+    private ServerFacade serverFacade;
+
 
     protected BackgroundTask(Handler messageHandler) {
         this.messageHandler = messageHandler;
@@ -69,10 +73,25 @@ public abstract class BackgroundTask implements Runnable {
 
     /**
      *
-     * @return Local Fake Data file
+     * @return Client side fake data object for local testing.
      */
     protected FakeData getFakeData() {
         return FakeData.getInstance();
+    }
+
+    /**
+     * Returns an instance of {@link ServerFacade}. Allows mocking of the ServerFacade class for
+     * testing purposes. All usages of ServerFacade should get their instance from this method to
+     * allow for proper mocking.
+     *
+     * @return the instance.
+     */
+    protected ServerFacade getServerFacade() {
+        if(serverFacade == null) {
+            serverFacade = new ServerFacade();
+        }
+
+        return serverFacade;
     }
 
     protected abstract void runTask();

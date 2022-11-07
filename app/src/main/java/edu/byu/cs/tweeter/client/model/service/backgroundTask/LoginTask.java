@@ -23,7 +23,7 @@ public class LoginTask extends AuthenticateTask {
     public static final String AUTH_TOKEN_KEY = "auth-token";
 
 
-    private ServerFacade serverFacade;
+
 
     public LoginTask(String username, String password, Handler messageHandler) {
         super(messageHandler, username, password);
@@ -47,20 +47,8 @@ public class LoginTask extends AuthenticateTask {
         }
         return result;
     }
-    
 
-    /**
-     * Returns an instance of {@link ServerFacade}. Allows mocking of the ServerFacade class for
-     * testing purposes. All usages of ServerFacade should get their instance from this method to
-     * allow for proper mocking.
-     *
-     * @return the instance.
-     */
-    ServerFacade getServerFacade() {
-        if(serverFacade == null) {
-            serverFacade = new ServerFacade();
-        }
 
-        return serverFacade;
-    }
+
+
 }
