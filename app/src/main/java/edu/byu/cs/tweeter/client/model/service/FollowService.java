@@ -34,6 +34,8 @@ public class FollowService extends Service{
     public static final String FOLLOWING_COUNT_URL_PATH = "/followingcount";
     public static final String FOLLOWERS_COUNT_URL_PATH = "/followerscount";
     public static final String IS_FOLLOWER_URL_PATH = "/isfollower";
+    public static final String FOLLOW_URL_PATH = "/follow";
+    public static final String UNFOLLOW_URL_PATH = "/unfollow";
     /**
      * Creates an instance.
      */

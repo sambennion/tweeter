@@ -2,14 +2,23 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
+import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 
 /**
  * Background task that returns the profile for a specified user.
  */
 public class GetUserTask extends AuthenticatedTask {
+
+    private static final String LOG_TAG = "GetUserTask";
 
     public static final String USER_KEY = "user";
 
@@ -27,12 +36,25 @@ public class GetUserTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() {
-        user = getUser();
+        try {
+            GetUserRequest request = new GetUserRequest(authToken, alias);
+            GetUserResponse response = getServerFacade().getUser(request, UserService.GET_USER_URL_PATH);
 
-        // Call sendSuccessMessage if successful
-        sendSuccessMessage();
-        // or call sendFailedMessage if not successful
-        // sendFailedMessage()
+            if (response.isSuccess()) {
+                sendSuccessMessage();
+            }
+        } catch (Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage(), ex);
+            sendExceptionMessage(ex);
+        }
+
+
+//        user = getUser();
+//
+//        // Call sendSuccessMessage if successful
+//        sendSuccessMessage();
+//        // or call sendFailedMessage if not successful
+//        // sendFailedMessage()
     }
 
     @Override
@@ -40,7 +62,7 @@ public class GetUserTask extends AuthenticatedTask {
         msgBundle.putSerializable(USER_KEY, user);
     }
 
-    private User getUser() {
-        return getFakeData().findUserByAlias(alias);
-    }
+//    private User getUser() {
+//        return getFakeData().findUserByAlias(alias);
+//    }
 }
