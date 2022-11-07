@@ -43,9 +43,13 @@ public abstract class AuthenticateTask extends BackgroundTask {
         authToken = loginResult.getSecond();
 
         // Call sendSuccessMessage if successful
-        sendSuccessMessage();
-        // or call sendFailedMessage if not successful
-        // sendFailedMessage()
+        if(authToken != null){
+            sendSuccessMessage();
+        }
+        else{
+            sendFailedMessage("Authentication failed.");
+        }
+
     }
 
     protected abstract Pair<User, AuthToken> runAuthenticationTask();
