@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowerResponse extends PagedResponse{
+public class GetFollowersResponse extends PagedResponse{
     private List<User> followers;
 
     /**
@@ -14,11 +14,11 @@ public class FollowerResponse extends PagedResponse{
      *
      * @param message a message describing why the request was unsuccessful.
      */
-    public FollowerResponse(String message) {
+    public GetFollowersResponse(String message) {
         super(false, message, false);
     }
 
-    public FollowerResponse(List<User> followers, boolean hasMorePages) {
+    public GetFollowersResponse(List<User> followers, boolean hasMorePages) {
         super(true, hasMorePages);
         this.followers = followers;
     }
@@ -38,7 +38,7 @@ public class FollowerResponse extends PagedResponse{
             return false;
         }
 
-        FollowerResponse that = (FollowerResponse) param;
+        GetFollowersResponse that = (GetFollowersResponse) param;
 
         return (Objects.equals(followers, that.followers) &&
                 Objects.equals(this.getMessage(), that.getMessage()) &&

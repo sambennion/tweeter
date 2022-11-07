@@ -1,14 +1,12 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.Random;
-
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
@@ -39,7 +37,7 @@ public class FollowService {
 
 
 
-    public FollowerResponse getFollowers(FollowerRequest request){
+    public GetFollowersResponse getFollowers(GetFollowersRequest request){
         if(request.getFolloweeAlias() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         } else if(request.getLimit() <= 0){

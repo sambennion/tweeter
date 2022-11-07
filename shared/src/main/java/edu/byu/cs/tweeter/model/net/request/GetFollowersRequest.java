@@ -2,15 +2,15 @@ package edu.byu.cs.tweeter.model.net.request;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 
-public class FollowerRequest {
+public class GetFollowersRequest {
     private AuthToken authToken;
     private String followeeAlias;
     private int limit;
     private String lastFollowerAlias;
 
-    private FollowerRequest(){}
+    private GetFollowersRequest(){}
 
-    public FollowerRequest(AuthToken authToken, String followeeAlias, int limit, String lastFollowerAlias) {
+    public GetFollowersRequest(AuthToken authToken, String followeeAlias, int limit, String lastFollowerAlias) {
         this.authToken = authToken;
         this.followeeAlias = followeeAlias;
         this.limit = limit;
