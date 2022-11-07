@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -23,7 +25,7 @@ public class FollowDAO {
     public Integer getFolloweeCount(User follower) {
         // TODO: uses the dummy data.  Replace with a real implementation.
         assert follower != null;
-        return getDummyFollowees().size();
+        return getDummyUsers().size();
     }
 
     /**
@@ -41,7 +43,7 @@ public class FollowDAO {
         assert request.getLimit() > 0;
         assert request.getFollowerAlias() != null;
 
-        List<User> allFollowees = getDummyFollowees();
+        List<User> allFollowees = getDummyUsers();
         List<User> responseFollowees = new ArrayList<>(request.getLimit());
 
         boolean hasMorePages = false;
@@ -59,6 +61,41 @@ public class FollowDAO {
         }
 
         return new FollowingResponse(responseFollowees, hasMorePages);
+    }
+
+    /**
+     * Gets the users from the database that the user specified in the request is following. Uses
+     * information in the request object to limit the number of followees returned and to return the
+     * next set of followees after any that were returned in a previous request. The current
+     * implementation returns generated data and doesn't actually access a database.
+     *
+     * @param request contains information about the user whose followees are to be returned and any
+     *                other information required to satisfy the request.
+     * @return the followees.
+     */
+    public FollowerResponse getFollowers(FollowerRequest request) {
+        // TODO: Generates dummy data. Replace with a real implementation.
+        assert request.getLimit() > 0;
+        assert request.getFolloweeAlias() != null;
+
+        List<User> allFollowers = getDummyUsers();
+        List<User> responseFollowers = new ArrayList<>(request.getLimit());
+
+        boolean hasMorePages = false;
+
+        if(request.getLimit() > 0) {
+            if (allFollowers != null) {
+                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
+
+                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
+                    responseFollowers.add(allFollowers.get(followersIndex));
+                }
+
+                hasMorePages = followersIndex < allFollowers.size();
+            }
+        }
+
+        return new FollowerResponse(responseFollowers, hasMorePages);
     }
 
     /**
@@ -91,13 +128,33 @@ public class FollowDAO {
         return followeesIndex;
     }
 
+    private int getFollowersStartingIndex(String lastFollowerAlias, List<User> allFollowers) {
+
+        int followersIndex = 0;
+
+        if(lastFollowerAlias != null) {
+            // This is a paged request for something after the first page. Find the first item
+            // we should return
+            for (int i = 0; i < allFollowers.size(); i++) {
+                if(lastFollowerAlias.equals(allFollowers.get(i).getAlias())) {
+                    // We found the index of the last item returned last time. Increment to get
+                    // to the first one we should return
+                    followersIndex = i + 1;
+                    break;
+                }
+            }
+        }
+
+        return followersIndex;
+    }
+
     /**
-     * Returns the list of dummy followee data. This is written as a separate method to allow
-     * mocking of the followees.
+     * Returns the list of dummy user data. This is written as a separate method to allow
+     * mocking of the users.
      *
-     * @return the followees.
+     * @return the users.
      */
-    List<User> getDummyFollowees() {
+    List<User> getDummyUsers() {
         return getFakeData().getFakeUsers();
     }
 

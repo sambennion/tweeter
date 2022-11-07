@@ -30,6 +30,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class FollowService extends Service{
 
     public static final String GET_FOLLOWING_URL_PATH = "/getfollowing";
+    public static final String GET_FOLLOWERS_URL_PATH = "/getfollowers";
 
     /**
      * Creates an instance.
