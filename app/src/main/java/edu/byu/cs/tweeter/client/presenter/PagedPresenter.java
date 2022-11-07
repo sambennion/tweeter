@@ -6,8 +6,7 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.observer.PagedObserver;
-import edu.byu.cs.tweeter.client.observer.ServiceObserver;
-import edu.byu.cs.tweeter.client.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -20,7 +19,7 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
     protected boolean isLoading = false;
 //    protected boolean isGettingUser;
 
-    public interface PagedView<T> extends Presenter.View{
+    public interface PagedView<T> extends View{
         void setLoading(boolean isLoading);
 
         void addItems(List<T> items);

@@ -13,17 +13,17 @@ import edu.byu.cs.tweeter.client.observer.IGetFollowersCountObserver;
 import edu.byu.cs.tweeter.client.observer.IGetFollowingCountObserver;
 import edu.byu.cs.tweeter.client.observer.IIsFollowerObserver;
 import edu.byu.cs.tweeter.client.observer.ILogoutObserver;
-import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
 import edu.byu.cs.tweeter.client.observer.IUnfollowObserver;
-import edu.byu.cs.tweeter.client.service.FollowService;
-import edu.byu.cs.tweeter.client.service.StatusService;
-import edu.byu.cs.tweeter.client.service.UserService;
+import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
+import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter{
-    private final MainPresenter.View view;
+    private final View view;
 
     public interface View {
         void displayFollowerCount(int count);

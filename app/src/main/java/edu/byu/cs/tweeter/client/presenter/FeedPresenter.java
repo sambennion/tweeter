@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class FeedPresenter extends PagedStatusPresenter implements GetStatusesObserver, GetUserObserver {
 //    private static final String LOG_TAG = "FeedPresenter";
 
-    public FeedPresenter(PagedStatusPresenter.PagedStatusView view, User user, AuthToken authToken) {
+    public FeedPresenter(PagedStatusView view, User user, AuthToken authToken) {
         super(view, user, authToken);
     }
 

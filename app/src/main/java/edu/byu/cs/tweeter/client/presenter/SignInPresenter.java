@@ -8,7 +8,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public abstract class SignInPresenter extends Presenter<SignInPresenter.SignInView> implements SignInObserver {
-    public SignInPresenter(SignInPresenter.SignInView view) {
+    public SignInPresenter(SignInView view) {
         super(view);
     }
 
@@ -34,7 +34,7 @@ public abstract class SignInPresenter extends Presenter<SignInPresenter.SignInVi
         }
     }
 
-    public interface SignInView extends Presenter.View {
+    public interface SignInView extends View {
         void clearInfoMessage();
 
         void clearErrorMessage();
@@ -69,7 +69,7 @@ public abstract class SignInPresenter extends Presenter<SignInPresenter.SignInVi
 
     @Override
     public void signInSucceeded(User user, AuthToken authToken) {
-        view.displayInfoMessage("Hello " + user.firstName);
+        view.displayInfoMessage("Hello " + user.getFirstName());
         view.clearErrorMessage();
         view.navigateToUser(user);
     }

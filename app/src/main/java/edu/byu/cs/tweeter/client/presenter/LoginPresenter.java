@@ -1,11 +1,11 @@
 package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.observer.LoginObserver;
-import edu.byu.cs.tweeter.client.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 
 public class LoginPresenter extends SignInPresenter implements LoginObserver {
 
-    public LoginPresenter(SignInPresenter.SignInView view) {
+    public LoginPresenter(SignInView view) {
         super(view);
     }
 
