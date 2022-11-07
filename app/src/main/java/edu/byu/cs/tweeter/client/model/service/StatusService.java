@@ -15,6 +15,7 @@ public class StatusService extends Service{
 
     public static final String FEED_URL_PATH = "/feed";
     public static final String STORY_URL_PATH = "/story";
+    public static final String POST_STATUS_URL_PATH = "/poststatus";
 
     public void getStory(AuthToken authToken, User user, int limit, Status lastStatus, GetStatusesObserver observer){
         runTask(new GetStoryTask(authToken,

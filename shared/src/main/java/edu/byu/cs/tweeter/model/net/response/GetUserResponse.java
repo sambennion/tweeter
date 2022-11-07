@@ -1,4 +1,31 @@
 package edu.byu.cs.tweeter.model.net.response;
 
-public class GetUserResponse {
+import edu.byu.cs.tweeter.model.domain.User;
+
+public class GetUserResponse extends Response{
+
+    private User user;
+
+
+    private GetUserResponse(String message){
+        super(false, message);
+    }
+
+
+    public GetUserResponse(User user) {
+        super(true, "Successfully got user.");
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
+
+
 }

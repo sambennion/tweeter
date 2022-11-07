@@ -24,6 +24,8 @@ public class FollowTask extends AuthenticatedTask {
         // We could do this from the presenter, without a task and handler, but we will
         // eventually access the database from here when we aren't using dummy data.
 
+
+
         // Call sendSuccessMessage if successful
         sendSuccessMessage();
         // or call sendFailedMessage if not successful

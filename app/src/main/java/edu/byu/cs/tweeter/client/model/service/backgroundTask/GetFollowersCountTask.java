@@ -26,7 +26,7 @@ public class GetFollowersCountTask extends GetCountTask {
     protected int runCountTask() {
         try{
             FollowersCountRequest request = new FollowersCountRequest(authToken, getTargetUser().getAlias());
-            FollowersCountResponse response = getServerFacade().getFollowersCount(request, FollowService.FOLLOWING_COUNT_URL_PATH);
+            FollowersCountResponse response = getServerFacade().getFollowersCount(request, FollowService.FOLLOWERS_COUNT_URL_PATH);
             return response.getCount();
 
         } catch (Exception exception){

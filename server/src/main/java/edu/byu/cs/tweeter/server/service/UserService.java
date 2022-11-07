@@ -4,11 +4,15 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -40,6 +44,13 @@ public class UserService {
         return new RegisterResponse(user, authToken);
     }
 
+    public LogoutResponse logout(LogoutRequest request) {
+        if(request.getAuthToken() == null){
+            throw new RuntimeException("[Bad Request] Missing a authtoken");
+        }
+        return new LogoutResponse();
+    }
+
     public FollowersCountResponse getFollowersCount(FollowersCountRequest request){
         return new FollowersCountResponse(20);
     }
@@ -47,6 +58,9 @@ public class UserService {
         return new FollowingCountResponse(20);
     }
 
+    public GetUserResponse getUser(GetUserRequest request){
+        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
+    }
     /**
      * Returns the dummy user to be returned by the login operation.
      * This is written as a separate method to allow mocking of the dummy user.
