@@ -1,4 +1,35 @@
 package edu.byu.cs.tweeter.model.net.response;
 
-public class RegisterResponse {
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
+
+public class RegisterResponse extends Response{
+    private User user;
+    private AuthToken authToken;
+
+    private RegisterResponse(String message){
+        super(false, message);
+    }
+
+    public RegisterResponse(User user, AuthToken authToken) {
+        super(true, "Successfully registered");
+        this.user = user;
+        this.authToken = authToken;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public AuthToken getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(AuthToken authToken) {
+        this.authToken = authToken;
+    }
 }

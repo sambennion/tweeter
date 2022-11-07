@@ -46,8 +46,5 @@ public class GetStoryTask extends PagedStatusTask {
             sendExceptionMessage(exception);
         }
         return result;
-
-
-//        return getFakeData().getPageOfStatus(getLastItem(), getLimit());
     }
 }
