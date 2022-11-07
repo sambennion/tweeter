@@ -13,6 +13,9 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class StatusService extends Service{
 
+    public static final String FEED_URL_PATH = "/feed";
+    public static final String STORY_URL_PATH = "/story";
+
     public void getStory(AuthToken authToken, User user, int limit, Status lastStatus, GetStatusesObserver observer){
         runTask(new GetStoryTask(authToken,
                 user, limit, lastStatus, new GetStatusesHandler(observer)));
