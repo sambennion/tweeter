@@ -10,6 +10,10 @@ public abstract class PagedStatusPresenter extends PagedPresenter<Status>{
         super(view, user, authToken);
     }
 
+    public PagedStatusPresenter(User user, AuthToken authToken) {
+        super(user, authToken);
+    }
+
     public interface PagedStatusView extends PagedView<Status>{
 
     }

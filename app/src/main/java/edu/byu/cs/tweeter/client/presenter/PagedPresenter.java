@@ -17,6 +17,11 @@ public abstract class PagedPresenter<T> extends Presenter<PagedPresenter.PagedVi
     protected T lastItem;
     protected boolean hasMorePages = true;
     protected boolean isLoading = false;
+
+    public PagedPresenter(User user, AuthToken authToken) {
+        this.authToken = authToken;
+        this.targetUser = user;
+    }
 //    protected boolean isGettingUser;
 
     public interface PagedView<T> extends View{

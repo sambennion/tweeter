@@ -12,6 +12,10 @@ public class StoryPresenter extends PagedStatusPresenter implements GetStatusesO
         super(view, user, authToken);
     }
 
+    public StoryPresenter(User user, AuthToken authToken){
+        super(user, authToken);
+    }
+
     @Override
     protected void getItems(AuthToken authToken, User targetUser, int pageSize, Status lastItem) {
         getStatusService().getStory(authToken, targetUser, pageSize, lastItem, this);
