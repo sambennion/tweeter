@@ -6,6 +6,8 @@ public class GetUserRequest {
     private AuthToken authToken;
     private String alias;
 
+    private GetUserRequest(){}
+
     public GetUserRequest(AuthToken authToken, String alias) {
         this.authToken = authToken;
         this.alias = alias;

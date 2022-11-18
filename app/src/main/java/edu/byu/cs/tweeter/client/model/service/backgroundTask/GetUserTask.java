@@ -41,7 +41,12 @@ public class GetUserTask extends AuthenticatedTask {
             GetUserResponse response = getServerFacade().getUser(request, UserService.GET_USER_URL_PATH);
 
             if (response.isSuccess()) {
+                user = response.getUser();
                 sendSuccessMessage();
+            }
+            else{
+//                sendFailedMessage("Got 'failed' response from server in GetUserTask.runTask()");
+                sendFailedMessage(response.getMessage());
             }
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
