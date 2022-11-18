@@ -43,6 +43,9 @@ public class GetUserTask extends AuthenticatedTask {
             if (response.isSuccess()) {
                 sendSuccessMessage();
             }
+            else{
+                sendFailedMessage("Got 'failed' response from server in GetUserTask.runTask()");
+            }
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             sendExceptionMessage(ex);
