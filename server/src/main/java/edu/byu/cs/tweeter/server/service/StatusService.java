@@ -35,7 +35,8 @@ public class StatusService {
         else if(request.getStatus().post == ""){
             throw new RuntimeException("[Bad Request] Request needs to post string");
         }
-        return new PostStatusResponse();
+        return getStatusDao().postStatus(request);
+//        return new PostStatusResponse();
     }
 
     private StatusDAO getStatusDao(){

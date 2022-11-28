@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.Base64;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
@@ -14,6 +16,7 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService {
@@ -26,9 +29,10 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
-        AuthToken authToken = getDummyAuthToken();
-        return new LoginResponse(user, authToken);
+        return getUserDao().login(request);
+//        User user = getDummyUser();
+//        AuthToken authToken = getDummyAuthToken();
+//        return new LoginResponse(user, authToken);
     }
 
     public RegisterResponse register(RegisterRequest request) {
@@ -39,28 +43,44 @@ public class UserService {
         }
 
         // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
-        AuthToken authToken = getDummyAuthToken();
-        return new RegisterResponse(user, authToken);
+        String hashedPassword = MD5Hashing.hashPassword(request.getPassword());
+        byte[] imageArray = Base64.getDecoder().decode(request.getImage());
+        String imageURL = null;
+        try{
+            imageURL = getUserDao().uploadImage(imageArray, request.getUsername());
+        }
+        catch (Exception exception){
+            System.out.println("Exception " + exception.getMessage());
+            throw new RuntimeException("[Bad Request] Image couldn't upload to S3");
+        }
+        User user = new User(request.getFirstName(), request.getLastName(), request.getUsername(), imageURL);
+        return getUserDao().register(user);
+//        User user = getDummyUser();
+//        AuthToken authToken = getDummyAuthToken();
+//
+//        return new RegisterResponse(user, authToken);
     }
 
     public LogoutResponse logout(LogoutRequest request) {
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Missing a authtoken");
         }
-        return new LogoutResponse();
+        return getUserDao().logout(request);
+//        return new LogoutResponse();
     }
 
     public FollowersCountResponse getFollowersCount(FollowersCountRequest request){
-        return new FollowersCountResponse(20);
+        return getUserDao().getFollowersCount(request);
+//        return new FollowersCountResponse(20);
     }
     public FollowingCountResponse getFollowingCount(FollowingCountRequest request){
-        return new FollowingCountResponse(20);
+        return getUserDao().getFollowingCount(request);
+//        return new FollowingCountResponse(20);
     }
 
     public GetUserResponse getUser(GetUserRequest request){
-
-        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
+        return getUserDao().getUser(request);
+//        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
     }
     /**
      * Returns the dummy user to be returned by the login operation.
@@ -90,5 +110,8 @@ public class UserService {
      */
     FakeData getFakeData() {
         return FakeData.getInstance();
+    }
+    private UserDao getUserDao(){
+        return new UserDao();
     }
 }

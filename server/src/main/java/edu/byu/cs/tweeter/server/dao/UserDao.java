@@ -1,4 +1,105 @@
 package edu.byu.cs.tweeter.server.dao;
 
-public class UserDao {
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
+import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
+import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.FollowingCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
+import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
+import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+
+public class UserDao extends Dao implements IUserDao {
+    private static String S3BUCKET_KEY = "tweeter-images-bennion";
+
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+        User user = getDummyUser();
+        AuthToken authToken = getDummyAuthToken();
+        return new LoginResponse(user, authToken);
+    }
+
+
+
+    private User getDummyUser() {
+        return getFakeData().getFirstUser();
+    }
+
+    /**
+     * Returns the dummy auth token to be returned by the login operation.
+     * This is written as a separate method to allow mocking of the dummy auth token.
+     *
+     * @return a dummy auth token.
+     */
+    private AuthToken getDummyAuthToken() {
+        return getFakeData().getAuthToken();
+    }
+
+//    /**
+//     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
+//     * This is written as a separate method to allow mocking of the {@link FakeData}.
+//     *
+//     * @return a {@link FakeData} instance.
+//     */
+//    FakeData getFakeData() {
+//        return FakeData.getInstance();
+//    }
+
+    @Override
+    public RegisterResponse register(User user) {
+
+        AuthToken authToken = getDummyAuthToken();
+        return new RegisterResponse(user, authToken);
+    }
+
+    @Override
+    public LogoutResponse logout(LogoutRequest request) {
+        return new LogoutResponse();
+    }
+
+    @Override
+    public FollowersCountResponse getFollowersCount(FollowersCountRequest request) {
+        return new FollowersCountResponse(20);
+    }
+
+    @Override
+    public FollowingCountResponse getFollowingCount(FollowingCountRequest request) {
+        return new FollowingCountResponse(20);
+    }
+
+    @Override
+    public GetUserResponse getUser(GetUserRequest request) {
+        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
+    }
+
+    private void setRegister(User user){
+//        DynamoDbTable<User> table = enhancedClient.table(TableName, TableSchema.fromBean())
+    }
+
+    public String uploadImage(byte[] imageArray, String alias) throws IOException {
+        InputStream inputStream = new ByteArrayInputStream(imageArray);
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType("image/jpeg");
+        objectMetadata.setContentLength(imageArray.length);
+        s3.putObject(new PutObjectRequest(S3BUCKET_KEY, alias, inputStream, objectMetadata));
+
+        return s3.getUrl(S3BUCKET_KEY, alias).toString();
+    }
+
 }

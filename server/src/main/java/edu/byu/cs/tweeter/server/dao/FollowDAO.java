@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 
 /**
  * A DAO for accessing 'following' data from the database.
  */
-public class FollowDAO extends Dao{
+public class FollowDAO extends Dao implements IFollowDAO {
 
     /**
      * Gets the count of users from the database that the user specified is following. The
@@ -21,6 +27,7 @@ public class FollowDAO extends Dao{
      * @param follower the User whose count of how many following is desired.
      * @return said count.
      */
+    @Override
     public Integer getFolloweeCount(User follower) {
         // TODO: uses the dummy data.  Replace with a real implementation.
         assert follower != null;
@@ -37,6 +44,7 @@ public class FollowDAO extends Dao{
      *                other information required to satisfy the request.
      * @return the followees.
      */
+    @Override
     public FollowingResponse getFollowees(FollowingRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
@@ -72,6 +80,7 @@ public class FollowDAO extends Dao{
      *                other information required to satisfy the request.
      * @return the followees.
      */
+    @Override
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
@@ -153,17 +162,20 @@ public class FollowDAO extends Dao{
      *
      * @return the users.
      */
-    List<User> getDummyUsers() {
+    @Override
+    public List<User> getDummyUsers() {
         return getFakeData().getFakeUsers();
     }
 
-//    /**
-//     * Returns the {@link FakeData} object used to generate dummy followees.
-//     * This is written as a separate method to allow mocking of the {@link FakeData}.
-//     *
-//     * @return a {@link FakeData} instance.
-//     */
-//    FakeData getFakeData() {
-//        return FakeData.getInstance();
-//    }
+    public FollowResponse follow(FollowRequest request) {
+        return new FollowResponse();
+    }
+
+    public UnfollowResponse unfollow(UnfollowRequest request) {
+        return new UnfollowResponse();
+    }
+
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        return new IsFollowerResponse(true);
+    }
 }

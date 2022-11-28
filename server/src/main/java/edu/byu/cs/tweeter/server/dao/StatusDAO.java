@@ -5,13 +5,16 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
+import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
+import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 
-public class StatusDAO extends Dao{
+public class StatusDAO extends Dao implements IStatusDAO {
 
 
+    @Override
     public FeedResponse getFeed(FeedRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
@@ -41,6 +44,7 @@ public class StatusDAO extends Dao{
 //        return getFakeData().getFakeStatuses();
     }
 
+    @Override
     public StoryResponse getStory(StoryRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
@@ -87,7 +91,12 @@ public class StatusDAO extends Dao{
         return statusesIndex;
     }
 
-    List<Status> getDummyStatuses() {
+    @Override
+    public List<Status> getDummyStatuses() {
         return getFakeData().getFakeStatuses();
+    }
+
+    public PostStatusResponse postStatus(PostStatusRequest request) {
+        return new PostStatusResponse();
     }
 }

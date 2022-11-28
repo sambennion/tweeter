@@ -53,20 +53,13 @@ public class GetUserTask extends AuthenticatedTask {
             sendExceptionMessage(ex);
         }
 
-
-//        user = getUser();
-//
-//        // Call sendSuccessMessage if successful
-//        sendSuccessMessage();
-//        // or call sendFailedMessage if not successful
-//        // sendFailedMessage()
     }
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
         msgBundle.putSerializable(USER_KEY, user);
     }
-
+//Use this if you want to test without calling server.
 //    private User getUser() {
 //        return getFakeData().findUserByAlias(alias);
 //    }

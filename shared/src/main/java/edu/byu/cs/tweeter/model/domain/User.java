@@ -12,6 +12,7 @@ public class User implements Comparable<User>, Serializable {
     private String lastName;
     private String alias;
     private String imageUrl;
+//    private String password;
 
     /**
      * Allows construction of the object from Json. Private so it won't be called by other code.
@@ -28,6 +29,12 @@ public class User implements Comparable<User>, Serializable {
         this.alias = alias;
         this.imageUrl = imageURL;
     }
+//    public User(String firstName, String lastName, String alias, String imageURL, String password) {
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.username = alias;
+//        this.imageUrl = imageURL;
+//    }
 
     public String getFirstName() {
         return firstName;
@@ -92,4 +99,12 @@ public class User implements Comparable<User>, Serializable {
     public int compareTo(User user) {
         return this.getAlias().compareTo(user.getAlias());
     }
+
+//    public String getPassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
 }

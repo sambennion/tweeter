@@ -50,14 +50,16 @@ public class FollowService {
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
-        return new FollowResponse();
+        return getFollowDAO().follow(request);
+//        return new FollowResponse();
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request){
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
-        return new UnfollowResponse();
+        return getFollowDAO().unfollow(request);
+//        return new UnfollowResponse();
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request){
@@ -67,7 +69,8 @@ public class FollowService {
         else if(request.getFollowee() == null || request.getFollower() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a follower and followee");
         }
-        return new IsFollowerResponse(true);
+        return getFollowDAO().isFollower(request);
+//        return new IsFollowerResponse(true);
     }
 
     /**

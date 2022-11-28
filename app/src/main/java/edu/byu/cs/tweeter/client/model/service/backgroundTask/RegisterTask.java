@@ -45,7 +45,7 @@ public class RegisterTask extends AuthenticateTask {
     protected Pair<User, AuthToken> runAuthenticationTask() {
         Pair<User, AuthToken> result = new Pair<>(null, null);
         try {
-            RegisterRequest request = new RegisterRequest(username, password);
+            RegisterRequest request = new RegisterRequest(username, password, firstName, lastName, image);
             RegisterResponse response = getServerFacade().register(request, UserService.REGISTER_URL_PATH);
 
             if (response.isSuccess()) {
