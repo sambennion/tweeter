@@ -5,12 +5,14 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 public class FollowRequest {
     private AuthToken authToken;
     private String followeeAlias;
+    private String followerAlias;
 
     private FollowRequest(){}
 
-    public FollowRequest(AuthToken authToken, String followeeAlias){
+    public FollowRequest(AuthToken authToken, String followeeAlias, String followerAlias){
         this.authToken = authToken;
         this.followeeAlias = followeeAlias;
+        this.followerAlias = followerAlias;
     }
 
     public AuthToken getAuthToken() {
@@ -27,5 +29,19 @@ public class FollowRequest {
 
     public void setFolloweeAlias(String followeeAlias) {
         this.followeeAlias = followeeAlias;
+    }
+
+    public String getFollowerAlias() {
+        return followerAlias;
+    }
+
+    public void setFollowerAlias(String followerAlias) {
+        this.followerAlias = followerAlias;
+    }
+    @Override
+    public String toString(){
+        return "FollowRequest{AuthToken: " + authToken + "\'"
+                + "FolloweeAlias: " + followeeAlias + "\'"
+                + "FollowerAlias: " + followerAlias + "}";
     }
 }

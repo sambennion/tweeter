@@ -10,7 +10,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 public class Dao {
     protected static DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
-            .credentialsProvider(ProfileCredentialsProvider.create())
             .region(Region.US_WEST_2)
             .build();
     protected static DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()

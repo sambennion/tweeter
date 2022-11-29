@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -40,6 +41,8 @@ public class LoginTask extends AuthenticateTask {
             if (response.isSuccess()) {
                 result.setFirst(response.getUser());
                 result.setSecond(response.getAuthToken());
+//                Cache.getInstance().setCurrUser(response.getUser());
+//                Cache.getInstance().setCurrUserAuthToken(response.getAuthToken());
             }
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);

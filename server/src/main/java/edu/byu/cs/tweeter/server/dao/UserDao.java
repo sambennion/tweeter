@@ -1,11 +1,13 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -14,24 +16,30 @@ import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
-import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.bean.Authtoken;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 public class UserDao extends Dao implements IUserDao {
     private static String S3BUCKET_KEY = "tweeter-images-bennion";
+    private static final String UserTableName = "user";
+    public static final String UserIndexName = "alias";
+    private static final String AuthtokenTableName = "authtoken";
+    private static final String AuthtokenIndexName = "authtoken";
+
 
 
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = getDummyUser();
-        AuthToken authToken = getDummyAuthToken();
+        AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
         return new LoginResponse(user, authToken);
     }
 
@@ -51,20 +59,11 @@ public class UserDao extends Dao implements IUserDao {
         return getFakeData().getAuthToken();
     }
 
-//    /**
-//     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-//     * This is written as a separate method to allow mocking of the {@link FakeData}.
-//     *
-//     * @return a {@link FakeData} instance.
-//     */
-//    FakeData getFakeData() {
-//        return FakeData.getInstance();
-//    }
-
     @Override
     public RegisterResponse register(User user) {
 
-        AuthToken authToken = getDummyAuthToken();
+        AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
+        insertAuthtoken(authToken);
         return new RegisterResponse(user, authToken);
     }
 
@@ -88,8 +87,31 @@ public class UserDao extends Dao implements IUserDao {
         return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
     }
 
+    @Override
+    public User getUserByAlias(String alias) {
+        return getFakeData().findUserByAlias(alias);
+    }
+
     private void setRegister(User user){
-//        DynamoDbTable<User> table = enhancedClient.table(TableName, TableSchema.fromBean())
+//        DynamoDbTable<User> table = enhancedClient.table(UserTableName, TableSchema.fromBean())
+    }
+    private void insertAuthtoken(AuthToken authToken){
+        DynamoDbTable<Authtoken> table = enhancedClient.table(AuthtokenTableName, TableSchema.fromBean(Authtoken.class));
+
+        Key key = Key.builder()
+                .partitionValue(authToken.getToken())
+                .build();
+        Authtoken token = table.getItem(key);
+        if(token != null){
+            System.out.println("Token already inserted");
+        }
+        else{
+            token = new Authtoken();
+            token.setAuthtoken(authToken.getToken());
+            token.setTimestamp(authToken.getDatetime());
+            table.putItem(token);
+        }
+
     }
 
     public String uploadImage(byte[] imageArray, String alias) throws IOException {
@@ -97,7 +119,7 @@ public class UserDao extends Dao implements IUserDao {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType("image/jpeg");
         objectMetadata.setContentLength(imageArray.length);
-        s3.putObject(new PutObjectRequest(S3BUCKET_KEY, alias, inputStream, objectMetadata));
+        s3.putObject(new PutObjectRequest(S3BUCKET_KEY, alias, inputStream, objectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
 
         return s3.getUrl(S3BUCKET_KEY, alias).toString();
     }
