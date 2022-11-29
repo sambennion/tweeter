@@ -17,11 +17,12 @@ import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.server.dao.bean.Follows;
+import edu.byu.cs.tweeter.util.Pair;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
-public class FollowService {
+public class FollowService extends Service{
 
     /**
      * Returns the users that the user specified in the request is following. Uses information in
@@ -38,7 +39,8 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        return getFollowDAO().getFollowees(request);
+        Pair<List<User>, Boolean> followees = getFollowDAO().getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
+        return new FollowingResponse(followees.getFirst(), followees.getSecond());
 //        List<Follows> follows = getFollowDAO().getFollowees(request);
 //        List<User> users = new ArrayList();
 //        for(Follows follow: follows){
@@ -87,15 +89,14 @@ public class FollowService {
 //        return new IsFollowerResponse(true);
     }
 
-    /**
-     * Returns an instance of {@link FollowDAO}. Allows mocking of the FollowDAO class
-     * for testing purposes. All usages of FollowDAO should get their FollowDAO
-     * instance from this method to allow for mocking of the instance.
-     *
-     * @return the instance.
-     */
-    FollowDAO getFollowDAO() {
-        return new FollowDAO();
-    }
-    UserDao getUserDao(){return new UserDao();}
+//    /**
+//     * Returns an instance of {@link FollowDAO}. Allows mocking of the FollowDAO class
+//     * for testing purposes. All usages of FollowDAO should get their FollowDAO
+//     * instance from this method to allow for mocking of the instance.
+//     *
+//     * @return the instance.
+//     */
+//    FollowDAO getFollowDAO() {
+//        return new FollowDAO();
+//    }
 }

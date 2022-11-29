@@ -88,7 +88,6 @@ public class UserDao extends Dao implements IUserDao {
         else{
             return new User(userBean.getFirstName(), userBean.getLastName(), userBean.getAlias(), userBean.getImageUrl());
         }
-//        return getFakeData().findUserByAlias(alias);
     }
 
     private void setRegister(User user, String password){

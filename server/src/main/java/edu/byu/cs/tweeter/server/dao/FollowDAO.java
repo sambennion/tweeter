@@ -18,6 +18,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.bean.Follows;
+import edu.byu.cs.tweeter.util.Pair;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -65,14 +66,12 @@ public class FollowDAO extends Dao implements IFollowDAO {
      * next set of followees after any that were returned in a previous request. The current
      * implementation returns generated data and doesn't actually access a database.
      *
-     * @param request contains information about the user whose followees are to be returned and any
-     *                other information required to satisfy the request.
-     * @return the followees.
+
      */
     @Override
-    public FollowingResponse getFollowees(FollowingRequest request) {
-        List<Follows> follows = getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
-        List<User> responseFollowees = new ArrayList<>(request.getLimit());
+    public Pair<List<User>, Boolean> getFollowees(String followerAlias, int limit, String lastFollowee) {
+        List<Follows> follows = getFolloweeBeans(followerAlias, limit, lastFollowee);
+        List<User> responseFollowees = new ArrayList<>(limit);
         boolean hasMorePages = false;
         System.out.println(follows.size());
 
@@ -82,8 +81,9 @@ public class FollowDAO extends Dao implements IFollowDAO {
             System.out.println("Adding followee " + followee.getAlias());
             responseFollowees.add(followee);
         }
-        hasMorePages = request.getLimit() == responseFollowees.size();
-        return new FollowingResponse(responseFollowees, hasMorePages);
+        hasMorePages = limit == responseFollowees.size();
+        return new Pair<>(responseFollowees, hasMorePages);
+//        return new FollowingResponse(responseFollowees, hasMorePages);
 
 
 
@@ -407,7 +407,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
      * @param lastFollowee The last followee returned in the previous page of results
      * @return The next page of follows
      */
-    private List<Follows> getFollowees(String follower_handle, int pageSize, String lastFollowee) {
+    private List<Follows> getFolloweeBeans(String follower_handle, int pageSize, String lastFollowee) {
         DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
         Key key = Key.builder()
                 .partitionValue(follower_handle)

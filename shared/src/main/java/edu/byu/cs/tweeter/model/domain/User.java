@@ -29,6 +29,9 @@ public class User implements Comparable<User>, Serializable {
         this.alias = alias;
         this.imageUrl = imageURL;
     }
+    public User(String alias){
+        this.alias = alias;
+    }
 //    public User(String firstName, String lastName, String alias, String imageURL, String password) {
 //        this.firstName = firstName;
 //        this.lastName = lastName;

@@ -20,7 +20,7 @@ import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class UserService {
+public class UserService extends Service{
 
     public LoginResponse login(LoginRequest request) {
         if(request.getUsername() == null){
@@ -80,25 +80,25 @@ public class UserService {
         User user = getUserDao().getUserByAlias(request.getAlias());
         return new GetUserResponse(user);
     }
-    /**
-     * Returns the dummy user to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy user.
-     *
-     * @return a dummy user.
-     */
-    User getDummyUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
-    }
+//    /**
+//     * Returns the dummy user to be returned by the login operation.
+//     * This is written as a separate method to allow mocking of the dummy user.
+//     *
+//     * @return a dummy user.
+//     */
+//    User getDummyUser() {
+//        return getFakeData().getFirstUser();
+//    }
+//
+//    /**
+//     * Returns the dummy auth token to be returned by the login operation.
+//     * This is written as a separate method to allow mocking of the dummy auth token.
+//     *
+//     * @return a dummy auth token.
+//     */
+//    AuthToken getDummyAuthToken() {
+//        return getFakeData().getAuthToken();
+//    }
 
     /**
      * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
@@ -106,10 +106,8 @@ public class UserService {
      *
      * @return a {@link FakeData} instance.
      */
-    FakeData getFakeData() {
-        return FakeData.getInstance();
-    }
-    private UserDao getUserDao(){
-        return new UserDao();
-    }
+//    FakeData getFakeData() {
+//        return FakeData.getInstance();
+//    }
+
 }
