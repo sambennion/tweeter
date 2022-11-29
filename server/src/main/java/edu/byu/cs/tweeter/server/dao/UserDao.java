@@ -13,17 +13,10 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
-import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
-import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowersCountResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowingCountResponse;
-import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
-import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
-import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.server.dao.bean.Authtoken;
 import edu.byu.cs.tweeter.server.dao.bean.UserBean;
+import edu.byu.cs.tweeter.util.Pair;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -38,26 +31,23 @@ public class UserDao extends Dao implements IUserDao {
 
 
     @Override
-    public LoginResponse login(LoginRequest request) {
-        User user = getDummyUser();
-        AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
-        return new LoginResponse(user, authToken);
+    public Pair<User, AuthToken> login(String username, String password) {
+        UserBean userBean = getUserBean(username);
+        System.out.println("Hashed Pass = " + password + " stored pass = " + userBean.getPassword());
+        if(password.equals(userBean.getPassword())){
+            AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
+            return new Pair<>(convertUserBeanToUser(userBean), authToken);
+
+        }
+        else{
+            throw new RuntimeException("Wrong password");
+        }
     }
 
 
 
     private User getDummyUser() {
         return getFakeData().getFirstUser();
-    }
-
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    private AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
     }
 
     @Override
@@ -71,28 +61,34 @@ public class UserDao extends Dao implements IUserDao {
     }
 
     @Override
-    public LogoutResponse logout(LogoutRequest request) {
-        return new LogoutResponse();
+    public void logout(LogoutRequest request) {
+        deleteAuthtoken(request.getAuthToken());
+//        return new LogoutResponse();
     }
 
     @Override
-    public FollowersCountResponse getFollowersCount(FollowersCountRequest request) {
-        return new FollowersCountResponse(20);
+    public int getFollowersCount(FollowersCountRequest request) {
+        UserBean userBean = getUserBean(request.getTargetUserAlias());
+        return userBean.getFollowerCount();
     }
 
     @Override
-    public FollowingCountResponse getFollowingCount(FollowingCountRequest request) {
-        return new FollowingCountResponse(20);
-    }
-
-    @Override
-    public GetUserResponse getUser(GetUserRequest request) {
-        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
+    public int getFollowingCount(FollowingCountRequest request) {
+        UserBean userBean = getUserBean(request.getTargetUserAlias());
+        return userBean.getFollowingCount();
     }
 
     @Override
     public User getUserByAlias(String alias) {
-        return getFakeData().findUserByAlias(alias);
+        UserBean userBean = getUserBean(alias);
+        if(userBean == null){
+            System.out.println("User does not exist in db");
+            throw new RuntimeException("User does not exist in db");
+        }
+        else{
+            return new User(userBean.getFirstName(), userBean.getLastName(), userBean.getAlias(), userBean.getImageUrl());
+        }
+//        return getFakeData().findUserByAlias(alias);
     }
 
     private void setRegister(User user, String password){
@@ -117,11 +113,8 @@ public class UserDao extends Dao implements IUserDao {
         }
     }
     private void insertAuthtoken(AuthToken authToken){
-        DynamoDbTable<Authtoken> table = enhancedClient.table(AuthtokenTableName, TableSchema.fromBean(Authtoken.class));
+        DynamoDbTable<Authtoken> table = getAuthtokenTable();
         Key key = buildKey(authToken.getToken());
-//        Key key = Key.builder()
-//                .partitionValue(authToken.getToken())
-//                .build();
         Authtoken token = table.getItem(key);
         if(token != null){
             System.out.println("Token already inserted");
@@ -134,6 +127,12 @@ public class UserDao extends Dao implements IUserDao {
         }
 
     }
+    private void deleteAuthtoken(AuthToken authtoken){
+        DynamoDbTable<Authtoken> table =  getAuthtokenTable();
+        Key key = buildKey(authtoken.getToken());
+        table.deleteItem(key);
+    }
+
 
     public String uploadImage(byte[] imageArray, String alias) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(imageArray);
@@ -145,14 +144,32 @@ public class UserDao extends Dao implements IUserDao {
         return s3.getUrl(S3BUCKET_KEY, alias).toString();
     }
 
-    public DynamoDbTable<UserBean> getUserTable(){
+    private DynamoDbTable<UserBean> getUserTable(){
         return enhancedClient.table(UserTableName, TableSchema.fromBean(UserBean.class));
     }
+    private DynamoDbTable<Authtoken> getAuthtokenTable(){
+        return enhancedClient.table(AuthtokenTableName, TableSchema.fromBean(Authtoken.class));
+    }
+
 
     public Key buildKey(String partitionValue){
         return Key.builder()
                 .partitionValue(partitionValue)
                 .build();
+    }
+    private UserBean getUserBean(String alias){
+        DynamoDbTable<UserBean> table = getUserTable();
+        Key key = buildKey(alias);
+        UserBean userBean = table.getItem(key);
+        if(userBean == null){
+            System.out.println("Couldn't get user");
+            throw new RuntimeException("Couldn't get user");
+        }
+        return userBean;
+    }
+
+    private User convertUserBeanToUser(UserBean userBean){
+        return new User(userBean.getFirstName(), userBean.getLastName(), userBean.getAlias(), userBean.getImageUrl());
     }
 
 }

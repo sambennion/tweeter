@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 
 public interface IFollowDAO{
-    Integer getFolloweeCount(User follower);
+    int getFolloweeCount(User follower);
     FollowingResponse getFollowees(FollowingRequest request);
     GetFollowersResponse getFollowers(GetFollowersRequest request);
     List<User> getDummyUsers();

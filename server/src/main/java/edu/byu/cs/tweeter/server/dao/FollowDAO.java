@@ -53,7 +53,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
      * @return said count.
      */
     @Override
-    public Integer getFolloweeCount(User follower) {
+    public int getFolloweeCount(User follower) {
         // TODO: uses the dummy data.  Replace with a real implementation.
         assert follower != null;
         return getDummyUsers().size();

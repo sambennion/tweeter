@@ -13,19 +13,20 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.util.Pair;
 
 public interface IUserDao {
-    LoginResponse login(LoginRequest request);
+    Pair<User, AuthToken> login(String username, String password);
 
     AuthToken register(User user, String password);
 
-    LogoutResponse logout(LogoutRequest request);
+    void logout(LogoutRequest request);
 
-    FollowersCountResponse getFollowersCount(FollowersCountRequest request);
+    int getFollowersCount(FollowersCountRequest request);
 
-    FollowingCountResponse getFollowingCount(FollowingCountRequest request);
+    int getFollowingCount(FollowingCountRequest request);
 
-    GetUserResponse getUser(GetUserRequest request);
+//    GetUserResponse getUser(GetUserRequest request);
 
     User getUserByAlias(String alias);
 }

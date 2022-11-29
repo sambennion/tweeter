@@ -18,6 +18,7 @@ import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class UserService {
 
@@ -27,12 +28,10 @@ public class UserService {
         } else if(request.getPassword() == null) {
             throw new RuntimeException("[Bad Request] Missing a password");
         }
+        String hashedPassword = MD5Hashing.hashPassword(request.getPassword());
 
-        // TODO: Generates dummy data. Replace with a real implementation.
-        return getUserDao().login(request);
-//        User user = getDummyUser();
-//        AuthToken authToken = getDummyAuthToken();
-//        return new LoginResponse(user, authToken);
+        Pair<User, AuthToken> userAuthTokenPair = getUserDao().login(request.getUsername(), hashedPassword);
+        return new LoginResponse(userAuthTokenPair.getFirst(), userAuthTokenPair.getSecond());
     }
 
     public RegisterResponse register(RegisterRequest request) {
@@ -57,33 +56,29 @@ public class UserService {
         AuthToken authToken = getUserDao().register(user, hashedPassword);
         RegisterResponse response = new RegisterResponse(user, authToken);
         return response;
-//        return getUserDao().register(user);
-//        User user = getDummyUser();
-//        AuthToken authToken = getDummyAuthToken();
-//
-//        return new RegisterResponse(user, authToken);
     }
 
     public LogoutResponse logout(LogoutRequest request) {
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Missing a authtoken");
         }
-        return getUserDao().logout(request);
+        return new LogoutResponse();
+//        return getUserDao().logout(request);
 //        return new LogoutResponse();
     }
 
     public FollowersCountResponse getFollowersCount(FollowersCountRequest request){
-        return getUserDao().getFollowersCount(request);
-//        return new FollowersCountResponse(20);
+        int followersCount = getUserDao().getFollowersCount(request);
+        return new FollowersCountResponse(followersCount);
     }
     public FollowingCountResponse getFollowingCount(FollowingCountRequest request){
-        return getUserDao().getFollowingCount(request);
-//        return new FollowingCountResponse(20);
+        int followingCount = getUserDao().getFollowingCount(request);
+        return new FollowingCountResponse(followingCount);
     }
 
     public GetUserResponse getUser(GetUserRequest request){
-        return getUserDao().getUser(request);
-//        return new GetUserResponse(getFakeData().findUserByAlias(request.getAlias()));
+        User user = getUserDao().getUserByAlias(request.getAlias());
+        return new GetUserResponse(user);
     }
     /**
      * Returns the dummy user to be returned by the login operation.
