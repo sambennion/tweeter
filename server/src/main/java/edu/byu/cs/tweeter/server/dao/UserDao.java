@@ -114,6 +114,10 @@ public class UserDao extends Dao implements IUserDao {
 
     }
 
+    private void insertUser(User user){
+
+    }
+
     public String uploadImage(byte[] imageArray, String alias) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(imageArray);
         ObjectMetadata objectMetadata = new ObjectMetadata();
