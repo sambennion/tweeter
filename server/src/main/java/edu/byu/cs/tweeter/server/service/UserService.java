@@ -54,7 +54,10 @@ public class UserService {
             throw new RuntimeException("[Bad Request] Image couldn't upload to S3");
         }
         User user = new User(request.getFirstName(), request.getLastName(), request.getUsername(), imageURL);
-        return getUserDao().register(user);
+        AuthToken authToken = getUserDao().register(user, hashedPassword);
+        RegisterResponse response = new RegisterResponse(user, authToken);
+        return response;
+//        return getUserDao().register(user);
 //        User user = getDummyUser();
 //        AuthToken authToken = getDummyAuthToken();
 //

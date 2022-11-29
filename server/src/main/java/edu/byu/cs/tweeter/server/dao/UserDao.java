@@ -23,6 +23,7 @@ import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.server.dao.bean.Authtoken;
+import edu.byu.cs.tweeter.server.dao.bean.UserBean;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -60,11 +61,13 @@ public class UserDao extends Dao implements IUserDao {
     }
 
     @Override
-    public RegisterResponse register(User user) {
+    public AuthToken register(User user, String password) {
 
         AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
         insertAuthtoken(authToken);
-        return new RegisterResponse(user, authToken);
+        setRegister(user, password);
+        return authToken;
+//        return new RegisterResponse(user, authToken);
     }
 
     @Override
@@ -92,15 +95,33 @@ public class UserDao extends Dao implements IUserDao {
         return getFakeData().findUserByAlias(alias);
     }
 
-    private void setRegister(User user){
-//        DynamoDbTable<User> table = enhancedClient.table(UserTableName, TableSchema.fromBean())
+    private void setRegister(User user, String password){
+        DynamoDbTable<UserBean> table = getUserTable();
+        Key key = buildKey(user.getAlias());
+        //check if user is already registered
+        UserBean userBean = table.getItem(key);
+        if(userBean != null){
+            System.out.println("User already registered");
+            throw new RuntimeException("User already registered");
+        }
+        else{
+            userBean = new UserBean();
+            userBean.setAlias(user.getAlias());
+            userBean.setFirstName(user.getFirstName());
+            userBean.setLastName(user.getLastName());
+            userBean.setImageUrl(user.getImageUrl());
+            userBean.setPassword(password);
+            userBean.setFollowerCount(0);
+            userBean.setFollowingCount(0);
+            table.putItem(userBean);
+        }
     }
     private void insertAuthtoken(AuthToken authToken){
         DynamoDbTable<Authtoken> table = enhancedClient.table(AuthtokenTableName, TableSchema.fromBean(Authtoken.class));
-
-        Key key = Key.builder()
-                .partitionValue(authToken.getToken())
-                .build();
+        Key key = buildKey(authToken.getToken());
+//        Key key = Key.builder()
+//                .partitionValue(authToken.getToken())
+//                .build();
         Authtoken token = table.getItem(key);
         if(token != null){
             System.out.println("Token already inserted");
@@ -114,10 +135,6 @@ public class UserDao extends Dao implements IUserDao {
 
     }
 
-    private void insertUser(User user){
-
-    }
-
     public String uploadImage(byte[] imageArray, String alias) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(imageArray);
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -126,6 +143,16 @@ public class UserDao extends Dao implements IUserDao {
         s3.putObject(new PutObjectRequest(S3BUCKET_KEY, alias, inputStream, objectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
 
         return s3.getUrl(S3BUCKET_KEY, alias).toString();
+    }
+
+    public DynamoDbTable<UserBean> getUserTable(){
+        return enhancedClient.table(UserTableName, TableSchema.fromBean(UserBean.class));
+    }
+
+    public Key buildKey(String partitionValue){
+        return Key.builder()
+                .partitionValue(partitionValue)
+                .build();
     }
 
 }

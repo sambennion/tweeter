@@ -5,7 +5,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 @DynamoDbBean
-public class StoryBean {
+public class FeedBean {
     private String alias;
     private String timestamp;
     private String status;
@@ -26,7 +26,6 @@ public class StoryBean {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
-
 
     public String getStatus() {
         return status;
