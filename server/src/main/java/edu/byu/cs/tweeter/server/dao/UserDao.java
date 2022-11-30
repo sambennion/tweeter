@@ -55,13 +55,11 @@ public class UserDao extends Dao implements IUserDao {
         insertAuthtoken(authToken);
         setRegister(user, password);
         return authToken;
-//        return new RegisterResponse(user, authToken);
     }
 
     @Override
     public void logout(LogoutRequest request) {
         deleteAuthtoken(request.getAuthToken());
-//        return new LogoutResponse();
     }
 
     @Override

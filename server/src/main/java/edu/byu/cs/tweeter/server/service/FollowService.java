@@ -42,6 +42,9 @@ public class FollowService extends Service{
      * @return the followees.
      */
     public FollowingResponse getFollowees(FollowingRequest request) {
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
+            throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
+        }
         if(request.getFollowerAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
         } else if(request.getLimit() <= 0) {
@@ -62,6 +65,9 @@ public class FollowService extends Service{
 
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
+            throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
+        }
         if(request.getFolloweeAlias() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         } else if(request.getLimit() <= 0){
@@ -74,7 +80,7 @@ public class FollowService extends Service{
 
     public FollowResponse follow(FollowRequest request){
 
-        if(request.getAuthToken() == null){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
         followDAO.follow(request);
@@ -85,7 +91,7 @@ public class FollowService extends Service{
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request){
-        if(request.getAuthToken() == null){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
         System.out.println("Starting unfollow");
@@ -100,7 +106,7 @@ public class FollowService extends Service{
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request){
-        if(request.getAuthToken() == null){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
         else if(request.getFollowee() == null || request.getFollower() == null){

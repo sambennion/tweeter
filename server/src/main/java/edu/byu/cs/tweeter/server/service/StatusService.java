@@ -26,7 +26,7 @@ public class StatusService extends Service{
     }
 
     public FeedResponse getFeed(FeedRequest request){
-        if(request.getAuthToken() == null) {
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Request needs to have an authtoken");
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
@@ -45,12 +45,10 @@ public class StatusService extends Service{
             statuses.add(status);
         }
         return new FeedResponse(statuses, statusPair.getSecond());
-//        List<Status> feed = getStatusDao().getFeed(request);
-//        return getStatusDao().getFeed(request);
     }
 
     public StoryResponse getStory(StoryRequest request){
-        if(request.getAuthToken() == null) {
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())) {
             throw new RuntimeException("[Bad Request] Request needs to have an authtoken");
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
@@ -66,7 +64,7 @@ public class StatusService extends Service{
     }
 
     public PostStatusResponse postStatus(PostStatusRequest request){
-        if(request.getAuthToken() == null){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Request needs to have an authtoken");
         }
         else if(request.getStatus().post == ""){

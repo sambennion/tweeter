@@ -24,7 +24,8 @@ public class AuthToken implements Serializable {
 
     public AuthToken(String token) {
         this.token = token;
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        System.out.println("Parsing Authtoken " + token);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
 //        System.out.println(dateFormat.format(date));
         datetime = dateFormat.format(date);

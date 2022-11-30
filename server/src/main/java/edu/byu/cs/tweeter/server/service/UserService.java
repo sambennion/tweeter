@@ -66,7 +66,7 @@ public class UserService extends Service{
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        if(request.getAuthToken() == null){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
             throw new RuntimeException("[Bad Request] Missing a authtoken");
         }
         return new LogoutResponse();
@@ -75,15 +75,24 @@ public class UserService extends Service{
     }
 
     public FollowersCountResponse getFollowersCount(FollowersCountRequest request){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
+            throw new RuntimeException("[Bad Request] Missing a authtoken");
+        }
         int followersCount = userDao.getFollowersCount(request);
         return new FollowersCountResponse(followersCount);
     }
     public FollowingCountResponse getFollowingCount(FollowingCountRequest request){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
+            throw new RuntimeException("[Bad Request] Missing a authtoken");
+        }
         int followingCount = userDao.getFollowingCount(request);
         return new FollowingCountResponse(followingCount);
     }
 
     public GetUserResponse getUser(GetUserRequest request){
+        if(request.getAuthToken() == null ||  isExpiredAuthToken(request.getAuthToken().getDatetime())){
+            throw new RuntimeException("[Bad Request] Missing a authtoken");
+        }
         User user = userDao.getUserByAlias(request.getAlias());
         System.out.println("Got user " + user);
         return new GetUserResponse(user);
