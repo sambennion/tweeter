@@ -8,20 +8,11 @@ import java.util.stream.Collectors;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
-import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
-import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.bean.Follows;
 import edu.byu.cs.tweeter.util.Pair;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -30,8 +21,6 @@ import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
@@ -45,21 +34,6 @@ public class FollowDAO extends Dao implements IFollowDAO {
 
         private static final String FollowerHandleAttr = "follower_handle";
         private static final String FolloweeHandleAttr = "followee_handle";
-
-    /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param follower the User whose count of how many following is desired.
-     * @return said count.
-     */
-    @Override
-    public int getFolloweeCount(User follower) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert follower != null;
-        return getDummyUsers().size();
-    }
-
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the
@@ -77,7 +51,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
 
         for(Follows follow: follows){
             //Add user. Needs to get user first.
-            User followee = getUserDao().getUserByAlias(follow.getFollowee_handle());
+            User followee = new User(follow.getFollowee_handle());
             System.out.println("Adding followee " + followee.getAlias());
             responseFollowees.add(followee);
         }
@@ -85,35 +59,6 @@ public class FollowDAO extends Dao implements IFollowDAO {
         return new Pair<>(responseFollowees, hasMorePages);
 //        return new FollowingResponse(responseFollowees, hasMorePages);
 
-
-
-
-
-
-//        // TODO: Generates dummy data. Replace with a real implementation.
-//        assert request.getLimit() > 0;
-//        assert request.getFollowerAlias() != null;
-//
-//        List<User> allFollowees = getDummyUsers();
-//        List<User> responseFollowees = new ArrayList<>(request.getLimit());
-//
-//        boolean hasMorePages = false;
-//
-//        if(request.getLimit() > 0) {
-//            if (allFollowees != null) {
-//                int followeesIndex = getFolloweesStartingIndex(request.getLastFolloweeAlias(), allFollowees);
-//
-//                for(int limitCounter = 0; followeesIndex < allFollowees.size() && limitCounter < request.getLimit(); followeesIndex++, limitCounter++) {
-//                    responseFollowees.add(allFollowees.get(followeesIndex));
-//                }
-//
-//                hasMorePages = followeesIndex < allFollowees.size();
-//            }
-//        }
-//
-////        return getFollowees(request.getFollowerAlias(), 10, null);
-//
-//        return new FollowingResponse(responseFollowees, hasMorePages);
     }
 
     /**
@@ -121,35 +66,25 @@ public class FollowDAO extends Dao implements IFollowDAO {
      * information in the request object to limit the number of followees returned and to return the
      * next set of followees after any that were returned in a previous request. The current
      * implementation returns generated data and doesn't actually access a database.
-     *
-     * @param request contains information about the user whose followees are to be returned and any
+
      *                other information required to satisfy the request.
      * @return the followees.
      */
     @Override
-    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
-        assert request.getLimit() > 0;
-        assert request.getFolloweeAlias() != null;
-
-        List<User> allFollowers = getDummyUsers();
-        List<User> responseFollowers = new ArrayList<>(request.getLimit());
-
+    public Pair<List<User>, Boolean> getFollowers(String followee_handle, int pageSize, String lastFollower) {
+        List<Follows> follows = getFolloweeBeans(followee_handle, pageSize, lastFollower);
+        List<User> responseFollowers = new ArrayList<>(pageSize);
         boolean hasMorePages = false;
+        System.out.println(follows.size());
 
-        if(request.getLimit() > 0) {
-            if (allFollowers != null) {
-                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
-
-                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
-                    responseFollowers.add(allFollowers.get(followersIndex));
-                }
-
-                hasMorePages = followersIndex < allFollowers.size();
-            }
+        for(Follows follow: follows){
+            //Add user. Needs to get user first.
+            User follower = new User(follow.getFollowee_handle());
+            System.out.println("Adding followee " + follower.getAlias());
+            responseFollowers.add(follower);
         }
-
-        return new GetFollowersResponse(responseFollowers, hasMorePages);
+        hasMorePages = pageSize == responseFollowers.size();
+        return new Pair<>(responseFollowers, hasMorePages);
     }
 
     /**
@@ -202,114 +137,44 @@ public class FollowDAO extends Dao implements IFollowDAO {
         return followersIndex;
     }
 
-    /**
-     * Returns the list of dummy user data. This is written as a separate method to allow
-     * mocking of the users.
-     *
-     * @return the users.
-     */
-    @Override
-    public List<User> getDummyUsers() {
-        return getFakeData().getFakeUsers();
-    }
-
-    public FollowResponse follow(FollowRequest request) {
+    public void follow(FollowRequest request) {
         System.out.println(request.toString());
         System.out.println(request.getFollowerAlias() + " following " + request.getFolloweeAlias());
 
         setFollow(request.getFollowerAlias(), request.getFolloweeAlias(), "", "");
-//        setFollow(request.);
-        return new FollowResponse();
+    }
+    @Override
+    public void unfollow(UnfollowRequest request) {
+        System.out.println("Removing follow from db");
+        deleteFollow(request.getFollowerAlias(), request.getFolloweeAlias());
+//        return new UnfollowResponse();
+    }
+    @Override
+    public boolean isFollower(IsFollowerRequest request) {
+        DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
+        Key key = Key.builder()
+                .partitionValue(request.getFollower().getAlias()).sortValue(request.getFollowee().getAlias())
+                .build();
+
+        Follows follows = table.getItem(key);
+        boolean isFollower = false;
+        if(follows != null){
+            isFollower = true;
+        }
+        System.out.println("isFollower = True for " + request.getFollower());
+        return isFollower;
     }
 
-    public UnfollowResponse unfollow(UnfollowRequest request) {
-        return new UnfollowResponse();
-    }
-
-    public IsFollowerResponse isFollower(IsFollowerRequest request) {
-        return new IsFollowerResponse(true);
-    }
 
 
 
 
 
-
-
-//
-//    private static DynamoDbClient dynamoDbClient = DynamoDbClient.builder()
-//            .credentialsProvider(ProfileCredentialsProvider.create())
-//            .region(Region.US_WEST_2)
-//            .build();
-//    private static DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
-//            .dynamoDbClient(dynamoDbClient)
-//            .build();
 
     private static boolean isNonEmptyString(String value) {
         return (value != null && value.length() > 0);
     }
 
-    /**
-     * Retrieve the follower name
-     *
-     * @param follower_handle
-     * @param followee_handle
-     * @return
-     */
-    private String getFollowerName(String follower_handle, String followee_handle) {
-        DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
-        Key key = Key.builder()
-                .partitionValue(follower_handle).sortValue(followee_handle)
-                .build();
-
-        Follows follows = table.getItem(key);
-        return follows == null ? "" : follows.getFollower_name();
-    }
-
-    /**
-     * Retrieve the followee name
-     *
-     * @param follower_handle
-     * @param followee_handle
-     * @return
-     */
-    private String getFolloweeName(String follower_handle, String followee_handle) {
-        DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
-        Key key = Key.builder()
-                .partitionValue(follower_handle).sortValue(followee_handle)
-                .build();
-
-        Follows follows = table.getItem(key);
-        return follows == null ? "" : follows.getFollowee_name();
-    }
-
-    /**
-     * Set follower name without setting followee name
-     *
-     * @param follower_handle
-     * @param followee_handle
-     * @param follower_name
-     */
-    private void setFollowerName(String follower_handle, String followee_handle, String follower_name) {
-        setFollow(follower_handle, followee_handle, follower_name, "");
-    }
-    /**
-     * set followee name without setting followername
-     *
-     * @param follower_handle
-     * @param followee_handle
-     * @param followee_name
-     */
-    private void setFolloweeName(String follower_handle, String followee_handle, String followee_name) {
-        setFollow(follower_handle, followee_handle, "", followee_name);
-    }
-    /**
-     * creates follow relationship
-     *
-     * @param follower_handle
-     * @param followee_handle
-     * @param followee_name
-     */
     private void setFollow(String follower_handle, String followee_handle, String follower_name, String followee_name) {
         DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
         System.out.println("Selected table");
@@ -393,6 +258,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
      */
     private void deleteFollow(String follower_handle, String followee_handle) {
         DynamoDbTable<Follows> table = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class));
+        System.out.println("Deleting follow " + follower_handle + "->" + followee_handle);
         Key key = Key.builder()
                 .partitionValue(follower_handle).sortValue(followee_handle)
                 .build();
@@ -451,7 +317,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
      * @param lastFollower The last follower returned in the previous page of results
      * @return The next page of follows of the followee
      */
-    private List<Follows> getFollowers(String followee_handle, int pageSize, String lastFollower) {
+    private List<Follows> getFollowerBeans(String followee_handle, int pageSize, String lastFollower) {
         DynamoDbIndex<Follows> index = enhancedClient.table(TableName, TableSchema.fromBean(Follows.class)).index(IndexName);
         Key key = Key.builder()
                 .partitionValue(followee_handle)
@@ -483,12 +349,5 @@ public class FollowDAO extends Dao implements IFollowDAO {
                 .forEach(visitsPage -> visitsPage.items().forEach(v -> follows.add(v)));
 
         return follows;
-    }
-    private UserDao getUserDao(){
-        if(this.userDao == null){
-            this.userDao = new UserDao();
-            return userDao;
-        }
-        return userDao;
     }
 }

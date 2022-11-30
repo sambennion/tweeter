@@ -23,11 +23,9 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 public class UserDao extends Dao implements IUserDao {
     private static String S3BUCKET_KEY = "tweeter-images-bennion";
-    private static final String UserTableName = "user";
     public static final String UserIndexName = "alias";
-    private static final String AuthtokenTableName = "authtoken";
-    private static final String AuthtokenIndexName = "authtoken";
 
+    private static final String AuthtokenIndexName = "authtoken";
 
 
     @Override
@@ -90,6 +88,62 @@ public class UserDao extends Dao implements IUserDao {
         }
     }
 
+    @Override
+    public void incrementFollowerCount(String alias){
+        DynamoDbTable<UserBean> table = getUserTable();
+        UserBean userBean = getUserBean(alias);
+        if(userBean == null){
+            System.out.println("userBean == null");
+            throw new RuntimeException("Error getting userBean in incrementFollowerCount for alias " + alias);
+        }
+        else{
+            userBean.setFollowerCount(userBean.getFollowerCount()+1);
+            table.updateItem(userBean);
+        }
+    }
+
+    @Override
+    public void incrementFollowingCount(String alias){
+        DynamoDbTable<UserBean> table = getUserTable();
+        UserBean userBean = getUserBean(alias);
+        if(userBean == null){
+            System.out.println("userBean == null");
+            throw new RuntimeException("Error getting userBean in incrementFollowingCount for alias " + alias);
+        }
+        else{
+            userBean.setFollowingCount(userBean.getFollowingCount()+1);
+            table.updateItem(userBean);
+        }
+    }
+
+    @Override
+    public void decrementFollowerCount(String alias){
+        DynamoDbTable<UserBean> table = getUserTable();
+        UserBean userBean = getUserBean(alias);
+        if(userBean == null){
+            System.out.println("userBean == null");
+            throw new RuntimeException("Error getting userBean in decrementFollowerCount for alias " + alias);
+        }
+        else{
+            userBean.setFollowerCount(userBean.getFollowerCount()-1);
+            table.updateItem(userBean);
+        }
+    }
+
+    @Override
+    public void decrementFollowingCount(String alias){
+        DynamoDbTable<UserBean> table = getUserTable();
+        UserBean userBean = getUserBean(alias);
+        if(userBean == null){
+            System.out.println("userBean == null");
+            throw new RuntimeException("Error getting userBean in decrementFollowingCount for alias " + alias);
+        }
+        else{
+            userBean.setFollowingCount(userBean.getFollowingCount()-1);
+            table.updateItem(userBean);
+        }
+    }
+
     private void setRegister(User user, String password){
         DynamoDbTable<UserBean> table = getUserTable();
         Key key = buildKey(user.getAlias());
@@ -132,7 +186,7 @@ public class UserDao extends Dao implements IUserDao {
         table.deleteItem(key);
     }
 
-
+    @Override
     public String uploadImage(byte[] imageArray, String alias) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(imageArray);
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -151,11 +205,8 @@ public class UserDao extends Dao implements IUserDao {
     }
 
 
-    public Key buildKey(String partitionValue){
-        return Key.builder()
-                .partitionValue(partitionValue)
-                .build();
-    }
+
+
     private UserBean getUserBean(String alias){
         DynamoDbTable<UserBean> table = getUserTable();
         Key key = buildKey(alias);

@@ -66,7 +66,17 @@ public class StatusService extends Service{
         else if(request.getStatus().post == ""){
             throw new RuntimeException("[Bad Request] Request needs to post string");
         }
-        return getStatusDao().postStatus(request);
+        List<User> followers = new ArrayList<>();
+        boolean hasMoreFollowers = true;
+        while(hasMoreFollowers == true){
+            Pair<List<User>, Boolean> followerBatch = getFollowDAO().getFollowers(request.getStatus().getUser().getAlias(), 10, null);
+            for(User user : followerBatch.getFirst()){
+                followers.add(user);
+            }
+            hasMoreFollowers = followerBatch.getSecond();
+        }
+        getStatusDao().postStatus(request, followers);
+        return new PostStatusResponse();
 //        return new PostStatusResponse();
     }
 

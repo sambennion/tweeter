@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.server.dao.bean.Follows;
+import edu.byu.cs.tweeter.server.dao.bean.UserBean;
 import edu.byu.cs.tweeter.util.Pair;
 
 /**
@@ -39,8 +40,9 @@ public class FollowService extends Service{
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        Pair<List<User>, Boolean> followees = getFollowDAO().getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
-        return new FollowingResponse(followees.getFirst(), followees.getSecond());
+        Pair<List<User>, Boolean> followeesPair = getFollowDAO().getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
+        List<User> followees = convertAliasUsersToFullUsers(followeesPair.getFirst());
+        return new FollowingResponse(followees, followeesPair.getSecond());
 //        List<Follows> follows = getFollowDAO().getFollowees(request);
 //        List<User> users = new ArrayList();
 //        for(Follows follow: follows){
@@ -58,7 +60,9 @@ public class FollowService extends Service{
         } else if(request.getLimit() <= 0){
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        return getFollowDAO().getFollowers(request);
+        Pair<List<User>, Boolean> followersPair = getFollowDAO().getFollowers(request.getFolloweeAlias(), request.getLimit(), request.getLastFollowerAlias());
+        List<User> followers = convertAliasUsersToFullUsers(followersPair.getFirst());
+        return new GetFollowersResponse(followers, followersPair.getSecond());
     }
 
     public FollowResponse follow(FollowRequest request){
@@ -66,7 +70,10 @@ public class FollowService extends Service{
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
-        return getFollowDAO().follow(request);
+        getFollowDAO().follow(request);
+        getUserDao().incrementFollowingCount(request.getFollowerAlias());
+        getUserDao().incrementFollowerCount(request.getFolloweeAlias());
+        return new FollowResponse();
 //        return new FollowResponse();
     }
 
@@ -74,7 +81,14 @@ public class FollowService extends Service{
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
-        return getFollowDAO().unfollow(request);
+        System.out.println("Starting unfollow");
+        getFollowDAO().unfollow(request);
+        System.out.println("Decrementing following count of follower");
+        getUserDao().decrementFollowingCount(request.getFollowerAlias());
+        System.out.println("Decrementing follower count of followee");
+        getUserDao().decrementFollowerCount(request.getFolloweeAlias());
+
+        return new UnfollowResponse();
 //        return new UnfollowResponse();
     }
 
@@ -85,8 +99,24 @@ public class FollowService extends Service{
         else if(request.getFollowee() == null || request.getFollower() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a follower and followee");
         }
-        return getFollowDAO().isFollower(request);
+        boolean isFollower = getFollowDAO().isFollower(request);
+        if(isFollower){
+            System.out.println("Sending isFollower is true message");
+        }
+        else{
+            System.out.println("Sending isFollower is false message");
+        }
+        return new IsFollowerResponse(isFollower);
 //        return new IsFollowerResponse(true);
+    }
+
+    private List<User> convertAliasUsersToFullUsers(List<User> users){
+        List<User> newUsers = new ArrayList<>();
+        for(User user : users){
+            user = getUserDao().getUserByAlias(user.getAlias());
+            newUsers.add(user);
+        }
+        return newUsers;
     }
 
 //    /**

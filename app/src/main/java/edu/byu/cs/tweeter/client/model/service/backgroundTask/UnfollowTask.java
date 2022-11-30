@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Handler;
 import android.util.Log;
 
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -29,7 +30,7 @@ public class UnfollowTask extends AuthenticatedTask {
     @Override
     protected void runTask() {
         try {
-            UnfollowRequest request = new UnfollowRequest(authToken, followee.getAlias());
+            UnfollowRequest request = new UnfollowRequest(authToken, followee.getAlias(), Cache.getInstance().getCurrUser().getAlias());
             UnfollowResponse response = getServerFacade().unfollow(request, FollowService.UNFOLLOW_URL_PATH);
             if (response.isSuccess()) {
                 sendSuccessMessage();

@@ -78,6 +78,7 @@ public class UserService extends Service{
 
     public GetUserResponse getUser(GetUserRequest request){
         User user = getUserDao().getUserByAlias(request.getAlias());
+        System.out.println("Got user " + user);
         return new GetUserResponse(user);
     }
 //    /**

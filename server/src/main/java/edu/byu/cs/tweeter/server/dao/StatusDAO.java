@@ -11,7 +11,6 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
-import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.server.dao.bean.FeedBean;
 import edu.byu.cs.tweeter.server.dao.bean.StoryBean;
 import edu.byu.cs.tweeter.util.Pair;
@@ -26,13 +25,14 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
     private static final String StoryTableName = "story";
     private static final String FeedTableName = "feed";
-//    public static final String IndexName = "follows_index";
     private static final String FeedOwnerHandleAttribute = "alias";
     private static final String StatusAttribute = "status";
 
 
     @Override
     public Pair<List<Status>, Boolean> getFeed(FeedRequest request) {
+        assert request.getLimit() > 0;
+        assert request.getAuthToken() != null;
         // TODO: Generates dummy data. Replace with a real implementation.
         System.out.println("Request for feed for alias " + request.getTargetUserAlias() + " limit = " + request.getLimit() + " last status = " + request.getLastStatus());
         String lastStatus = null;
@@ -54,36 +54,6 @@ public class StatusDAO extends Dao implements IStatusDAO {
         }
         hasMorePages = request.getLimit() == feed.size();
         return new Pair<>(feed, hasMorePages);
-
-
-
-//        assert request.getLimit() > 0;
-//        assert request.getAuthToken() != null;
-//
-//
-//        List<Status> allStatuses = getDummyStatuses();
-//        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
-//
-//        boolean hasMorePages = false;
-//
-//        if(request.getLimit() > 0) {
-//            if (allStatuses != null) {
-//                int statusesIndex = getStatusesStartingIndex(request.getLastStatus(), allStatuses);
-//
-//                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
-//                    responseStatuses.add(allStatuses.get(statusesIndex));
-//                }
-//
-//                hasMorePages = statusesIndex < allStatuses.size();
-//            }
-//        }
-//
-//        return new Pair<>(responseStatuses, hasMorePages);
-//        return new FeedResponse(responseStatuses, hasMorePages);
-
-
-
-//        return getFakeData().getFakeStatuses();
     }
 
     @Override
@@ -109,31 +79,6 @@ public class StatusDAO extends Dao implements IStatusDAO {
         }
         hasMorePages = request.getLimit() == story.size();
         return new Pair<>(story, hasMorePages);
-
-
-//        // TODO: Generates dummy data. Replace with a real implementation.
-//        assert request.getLimit() > 0;
-//        assert request.getAuthToken() != null;
-//
-//        List<Status> allStatuses = getDummyStatuses();
-//        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
-//
-//        boolean hasMorePages = false;
-//
-//        if(request.getLimit() > 0) {
-//            if (allStatuses != null) {
-//                int statusesIndex = getStatusesStartingIndex(request.getLastStatus(), allStatuses);
-//
-//                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
-//                    responseStatuses.add(allStatuses.get(statusesIndex));
-//                }
-//
-//                hasMorePages = statusesIndex < allStatuses.size();
-//            }
-//        }
-//
-//        return new StoryResponse(responseStatuses, hasMorePages);
-
     }
 
     private int getStatusesStartingIndex(Status lastStatus, List<Status> allStatuses) {
@@ -157,12 +102,49 @@ public class StatusDAO extends Dao implements IStatusDAO {
     }
 
     @Override
-    public List<Status> getDummyStatuses() {
-        return getFakeData().getFakeStatuses();
+    public void postStatus(PostStatusRequest request, List<User> followers) {
+        Status status = request.getStatus();
+
+        postToStory(status);
+
+        postToFeed(status, followers);
+
+
+
+//        return new PostStatusResponse();
     }
 
-    public PostStatusResponse postStatus(PostStatusRequest request) {
-        return new PostStatusResponse();
+    private void postToStory(Status status){
+        System.out.println("Selecting table and building key");
+        DynamoDbTable<StoryBean> storyTable = getStoryTable();
+        Key key = buildKey(status.getUser().getAlias());
+        System.out.println("Creating story bean");
+        StoryBean storyBean = new StoryBean();
+        storyBean.setAlias(status.getUser().getAlias());
+        storyBean.setTimestamp(status.getDate());
+        storyBean.setMentions(status.getMentions());
+        storyBean.setStatus(status.getPost());
+        storyBean.setUrls(status.getUrls());
+
+        System.out.println("running putItem on story bean");
+        storyTable.putItem(storyBean);
+    }
+
+    private void postToFeed(Status status, List<User> followers){
+        DynamoDbTable<FeedBean> feedTable = getFeedTable();
+
+        for(User user : followers){
+            Key key = buildKey(user.getAlias());
+            FeedBean feedBean = new FeedBean();
+            feedBean.setStatus(status.getPost());
+            feedBean.setAlias(user.getAlias());
+            feedBean.setStatusOwner(status.getUser().getAlias());
+            feedBean.setMentions(status.getMentions());
+            feedBean.setTimestamp(status.getDate());
+            feedBean.setUrls(status.getUrls());
+            System.out.println("Adding item to feed table");
+            feedTable.putItem(feedBean);
+        }
     }
 
 
@@ -239,7 +221,11 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
     }
 
-//    private Status convertStoryBeanToStatus(StoryBean storyBean){
-//        return new Status(storyBean.getStatus(), storyBean.getAlias(), storyBean.getTimestamp(), storyBean.getUrl(), storyBean.getMentions());
-//    }
+    private DynamoDbTable<StoryBean> getStoryTable(){
+        return enhancedClient.table(StoryTableName, TableSchema.fromBean(StoryBean.class));
+    }
+
+    private DynamoDbTable<FeedBean> getFeedTable(){
+        return enhancedClient.table(FeedTableName, TableSchema.fromBean(FeedBean.class));
+    }
 }
