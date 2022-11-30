@@ -137,6 +137,7 @@ public class FollowDAO extends Dao implements IFollowDAO {
         return followersIndex;
     }
 
+    @Override
     public void follow(FollowRequest request) {
         System.out.println(request.toString());
         System.out.println(request.getFollowerAlias() + " following " + request.getFolloweeAlias());

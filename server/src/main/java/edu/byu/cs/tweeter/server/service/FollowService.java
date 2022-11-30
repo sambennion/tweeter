@@ -15,6 +15,9 @@ import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.IFollowDAO;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
+import edu.byu.cs.tweeter.server.dao.IUserDao;
 import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.server.dao.bean.Follows;
 import edu.byu.cs.tweeter.server.dao.bean.UserBean;
@@ -24,6 +27,10 @@ import edu.byu.cs.tweeter.util.Pair;
  * Contains the business logic for getting the users a user is following.
  */
 public class FollowService extends Service{
+
+    public FollowService(IFollowDAO followDAO, IStatusDAO statusDAO, IUserDao userDao) {
+        super(followDAO, statusDAO, userDao);
+    }
 
     /**
      * Returns the users that the user specified in the request is following. Uses information in
@@ -40,7 +47,7 @@ public class FollowService extends Service{
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        Pair<List<User>, Boolean> followeesPair = getFollowDAO().getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
+        Pair<List<User>, Boolean> followeesPair = followDAO.getFollowees(request.getFollowerAlias(), request.getLimit(), request.getLastFolloweeAlias());
         List<User> followees = convertAliasUsersToFullUsers(followeesPair.getFirst());
         return new FollowingResponse(followees, followeesPair.getSecond());
 //        List<Follows> follows = getFollowDAO().getFollowees(request);
@@ -60,7 +67,7 @@ public class FollowService extends Service{
         } else if(request.getLimit() <= 0){
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        Pair<List<User>, Boolean> followersPair = getFollowDAO().getFollowers(request.getFolloweeAlias(), request.getLimit(), request.getLastFollowerAlias());
+        Pair<List<User>, Boolean> followersPair = followDAO.getFollowers(request.getFolloweeAlias(), request.getLimit(), request.getLastFollowerAlias());
         List<User> followers = convertAliasUsersToFullUsers(followersPair.getFirst());
         return new GetFollowersResponse(followers, followersPair.getSecond());
     }
@@ -70,9 +77,9 @@ public class FollowService extends Service{
         if(request.getAuthToken() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
-        getFollowDAO().follow(request);
-        getUserDao().incrementFollowingCount(request.getFollowerAlias());
-        getUserDao().incrementFollowerCount(request.getFolloweeAlias());
+        followDAO.follow(request);
+        userDao.incrementFollowingCount(request.getFollowerAlias());
+        userDao.incrementFollowerCount(request.getFolloweeAlias());
         return new FollowResponse();
 //        return new FollowResponse();
     }
@@ -82,11 +89,11 @@ public class FollowService extends Service{
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
         System.out.println("Starting unfollow");
-        getFollowDAO().unfollow(request);
+        followDAO.unfollow(request);
         System.out.println("Decrementing following count of follower");
-        getUserDao().decrementFollowingCount(request.getFollowerAlias());
+        userDao.decrementFollowingCount(request.getFollowerAlias());
         System.out.println("Decrementing follower count of followee");
-        getUserDao().decrementFollowerCount(request.getFolloweeAlias());
+        userDao.decrementFollowerCount(request.getFolloweeAlias());
 
         return new UnfollowResponse();
 //        return new UnfollowResponse();
@@ -99,7 +106,7 @@ public class FollowService extends Service{
         else if(request.getFollowee() == null || request.getFollower() == null){
             throw new RuntimeException("[Bad Request] Request needs to have a follower and followee");
         }
-        boolean isFollower = getFollowDAO().isFollower(request);
+        boolean isFollower = followDAO.isFollower(request);
         if(isFollower){
             System.out.println("Sending isFollower is true message");
         }
@@ -113,20 +120,10 @@ public class FollowService extends Service{
     private List<User> convertAliasUsersToFullUsers(List<User> users){
         List<User> newUsers = new ArrayList<>();
         for(User user : users){
-            user = getUserDao().getUserByAlias(user.getAlias());
+            user = userDao.getUserByAlias(user.getAlias());
             newUsers.add(user);
         }
         return newUsers;
     }
 
-//    /**
-//     * Returns an instance of {@link FollowDAO}. Allows mocking of the FollowDAO class
-//     * for testing purposes. All usages of FollowDAO should get their FollowDAO
-//     * instance from this method to allow for mocking of the instance.
-//     *
-//     * @return the instance.
-//     */
-//    FollowDAO getFollowDAO() {
-//        return new FollowDAO();
-//    }
 }

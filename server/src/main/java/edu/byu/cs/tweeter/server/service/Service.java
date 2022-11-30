@@ -1,20 +1,17 @@
 package edu.byu.cs.tweeter.server.service;
 
-import edu.byu.cs.tweeter.server.dao.FollowDAO;
-import edu.byu.cs.tweeter.server.dao.StatusDAO;
-import edu.byu.cs.tweeter.server.dao.UserDao;
+import edu.byu.cs.tweeter.server.dao.IFollowDAO;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
+import edu.byu.cs.tweeter.server.dao.IUserDao;
 
 public class Service {
+    protected IFollowDAO followDAO;
+    protected IStatusDAO statusDAO;
+    protected IUserDao userDao;
 
-    protected UserDao getUserDao(){
-        return new UserDao();
-    }
-
-    protected FollowDAO getFollowDAO() {
-        return new FollowDAO();
-    }
-
-    protected StatusDAO getStatusDao(){
-        return new StatusDAO();
+    public Service(IFollowDAO followDAO, IStatusDAO statusDAO, IUserDao userDao) {
+        this.followDAO = followDAO;
+        this.statusDAO = statusDAO;
+        this.userDao = userDao;
     }
 }

@@ -16,11 +16,18 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.IFollowDAO;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
+import edu.byu.cs.tweeter.server.dao.IUserDao;
 import edu.byu.cs.tweeter.server.dao.UserDao;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class UserService extends Service{
+
+    public UserService(IFollowDAO followDAO, IStatusDAO statusDAO, IUserDao userDao) {
+        super(followDAO, statusDAO, userDao);
+    }
 
     public LoginResponse login(LoginRequest request) {
         if(request.getUsername() == null){
@@ -30,7 +37,7 @@ public class UserService extends Service{
         }
         String hashedPassword = MD5Hashing.hashPassword(request.getPassword());
 
-        Pair<User, AuthToken> userAuthTokenPair = getUserDao().login(request.getUsername(), hashedPassword);
+        Pair<User, AuthToken> userAuthTokenPair = userDao.login(request.getUsername(), hashedPassword);
         return new LoginResponse(userAuthTokenPair.getFirst(), userAuthTokenPair.getSecond());
     }
 
@@ -46,14 +53,14 @@ public class UserService extends Service{
         byte[] imageArray = Base64.getDecoder().decode(request.getImage());
         String imageURL = null;
         try{
-            imageURL = getUserDao().uploadImage(imageArray, request.getUsername());
+            imageURL = userDao.uploadImage(imageArray, request.getUsername());
         }
         catch (Exception exception){
             System.out.println("Exception " + exception.getMessage());
             throw new RuntimeException("[Bad Request] Image couldn't upload to S3");
         }
         User user = new User(request.getFirstName(), request.getLastName(), request.getUsername(), imageURL);
-        AuthToken authToken = getUserDao().register(user, hashedPassword);
+        AuthToken authToken = userDao.register(user, hashedPassword);
         RegisterResponse response = new RegisterResponse(user, authToken);
         return response;
     }
@@ -68,47 +75,19 @@ public class UserService extends Service{
     }
 
     public FollowersCountResponse getFollowersCount(FollowersCountRequest request){
-        int followersCount = getUserDao().getFollowersCount(request);
+        int followersCount = userDao.getFollowersCount(request);
         return new FollowersCountResponse(followersCount);
     }
     public FollowingCountResponse getFollowingCount(FollowingCountRequest request){
-        int followingCount = getUserDao().getFollowingCount(request);
+        int followingCount = userDao.getFollowingCount(request);
         return new FollowingCountResponse(followingCount);
     }
 
     public GetUserResponse getUser(GetUserRequest request){
-        User user = getUserDao().getUserByAlias(request.getAlias());
+        User user = userDao.getUserByAlias(request.getAlias());
         System.out.println("Got user " + user);
         return new GetUserResponse(user);
     }
-//    /**
-//     * Returns the dummy user to be returned by the login operation.
-//     * This is written as a separate method to allow mocking of the dummy user.
-//     *
-//     * @return a dummy user.
-//     */
-//    User getDummyUser() {
-//        return getFakeData().getFirstUser();
-//    }
-//
-//    /**
-//     * Returns the dummy auth token to be returned by the login operation.
-//     * This is written as a separate method to allow mocking of the dummy auth token.
-//     *
-//     * @return a dummy auth token.
-//     */
-//    AuthToken getDummyAuthToken() {
-//        return getFakeData().getAuthToken();
-//    }
 
-    /**
-     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-//    FakeData getFakeData() {
-//        return FakeData.getInstance();
-//    }
 
 }
