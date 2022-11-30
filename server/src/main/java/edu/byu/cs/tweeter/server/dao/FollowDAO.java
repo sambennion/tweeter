@@ -72,14 +72,14 @@ public class FollowDAO extends Dao implements IFollowDAO {
      */
     @Override
     public Pair<List<User>, Boolean> getFollowers(String followee_handle, int pageSize, String lastFollower) {
-        List<Follows> follows = getFolloweeBeans(followee_handle, pageSize, lastFollower);
+        List<Follows> follows = getFollowerBeans(followee_handle, pageSize, lastFollower);
         List<User> responseFollowers = new ArrayList<>(pageSize);
         boolean hasMorePages = false;
         System.out.println(follows.size());
 
         for(Follows follow: follows){
             //Add user. Needs to get user first.
-            User follower = new User(follow.getFollowee_handle());
+            User follower = new User(follow.getFollower_handle());
             System.out.println("Adding followee " + follower.getAlias());
             responseFollowers.add(follower);
         }
