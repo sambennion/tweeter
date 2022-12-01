@@ -19,13 +19,18 @@ import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.server.JsonSerializer;
 import edu.byu.cs.tweeter.server.dao.bean.FeedBean;
 import edu.byu.cs.tweeter.server.dao.bean.StoryBean;
+import edu.byu.cs.tweeter.server.dao.bean.UserBean;
 import edu.byu.cs.tweeter.util.Pair;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 public class StatusDAO extends Dao implements IStatusDAO {
 
@@ -267,5 +272,34 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
     private DynamoDbTable<FeedBean> getFeedTable(){
         return enhancedClient.table(FeedTableName, TableSchema.fromBean(FeedBean.class));
+    }
+
+    public void addFeedBatch(List<FeedBean> feeds) {
+        if(feeds.size() > 25){
+            System.out.println("Batch size is too big. Current size is " + feeds.size());
+            throw new RuntimeException("Batch size too big");
+        }
+
+        DynamoDbTable<FeedBean> table = enhancedClient.table(FeedTableName, TableSchema.fromBean(FeedBean.class));
+        WriteBatch.Builder<FeedBean> writeBuilder = WriteBatch.builder(FeedBean.class).mappedTableResource(table);
+        for (FeedBean item : feeds) {
+            writeBuilder.addPutItem(builder -> builder.item(item));
+        }
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = enhancedClient.batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(table).size() > 0) {
+                addFeedBatch(result.unprocessedPutItemsForTable(table));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+
     }
 }
