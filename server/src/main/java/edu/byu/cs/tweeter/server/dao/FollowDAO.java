@@ -17,18 +17,20 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 /**
  * A DAO for accessing 'following' data from the database.
  */
 public class FollowDAO extends Dao implements IFollowDAO {
-
-    private UserDao userDao;
         private static final String TableName = "follows";
         public static final String IndexName = "follows_index";
 
@@ -350,5 +352,56 @@ public class FollowDAO extends Dao implements IFollowDAO {
                 .forEach(visitsPage -> visitsPage.items().forEach(v -> follows.add(v)));
 
         return follows;
+    }
+
+    public void addFollowersBatch(List<String> followers, String followTarget) {
+        List<Follows> follows = new ArrayList<>();
+        Follows followBean = new Follows();
+        for(String follower: followers){
+            followBean.setFollowee_handle(followTarget);
+//            System.out.println(follower);
+            followBean.setFollower_handle(follower);
+            follows.add(followBean);
+            followBean = new Follows();
+            if (follows.size() == 25) {
+                // package this batch up and send to DynamoDB.
+                writeChunkOfFollows(follows);
+                follows = new ArrayList<>();
+            }
+        }
+
+        // write any remaining
+        if (follows.size() > 0) {
+            // package this batch up and send to DynamoDB.
+            writeChunkOfFollows(follows);
+        }
+
+    }
+
+    private void writeChunkOfFollows(List<Follows> userDTOs) {
+        if(userDTOs.size() > 25)
+            throw new RuntimeException("Too many follows to write");
+
+        DynamoDbTable<Follows> table = enhancedClient.table(FollowsTableName, TableSchema.fromBean(Follows.class));
+        WriteBatch.Builder<Follows> writeBuilder = WriteBatch.builder(Follows.class).mappedTableResource(table);
+        for (Follows item : userDTOs) {
+//            System.out.println(item.toString());
+            writeBuilder.addPutItem(builder -> builder.item(item));
+        }
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = enhancedClient.batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(table).size() > 0) {
+                writeChunkOfFollows(result.unprocessedPutItemsForTable(table));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 }

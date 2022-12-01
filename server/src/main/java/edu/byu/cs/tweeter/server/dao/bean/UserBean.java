@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.server.dao.bean;
 
+import edu.byu.cs.tweeter.model.domain.User;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
@@ -13,6 +14,15 @@ public class UserBean {
     private int followerCount;
     private int followingCount;
 
+//    public UserBean(){}
+//    public UserBean(User user){
+//        this.alias = user.getAlias();
+//        this.firstName = user.getFirstName();
+//        this.lastName = user.getLastName();
+//        this.imageUrl = user.getImageUrl();
+//        this.setFollowerCount(0);
+//        this.setFollowingCount(0);
+//    }
     @DynamoDbPartitionKey
     public String getAlias() {
         return alias;

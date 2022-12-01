@@ -1,6 +1,7 @@
 package edu.byu.cs.tweeter.server.dao;
 
 import java.io.IOException;
+import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -15,6 +16,7 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.bean.UserBean;
 import edu.byu.cs.tweeter.util.Pair;
 
 public interface IUserDao {
@@ -41,4 +43,6 @@ public interface IUserDao {
     void decrementFollowingCount(String alias);
 
     String uploadImage(byte[] imageArray, String alias) throws IOException;
+
+    void addUserBatch(List<UserBean> users);
 }
