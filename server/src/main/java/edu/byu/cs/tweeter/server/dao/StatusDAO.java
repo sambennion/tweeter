@@ -114,6 +114,12 @@ public class StatusDAO extends Dao implements IStatusDAO {
 //        return new PostStatusResponse();
     }
 
+    @Override
+    public void deleteFeedMember(String alias){
+//        DynamoDbTable<FeedBean> table = getFeedTable();
+
+    }
+
     private void postToStory(Status status){
         System.out.println("Selecting table and building key");
         DynamoDbTable<StoryBean> storyTable = getStoryTable();
@@ -129,6 +135,7 @@ public class StatusDAO extends Dao implements IStatusDAO {
         System.out.println("running putItem on story bean");
         storyTable.putItem(storyBean);
     }
+
 
     private void postToFeed(Status status, List<User> followers){
         DynamoDbTable<FeedBean> feedTable = getFeedTable();

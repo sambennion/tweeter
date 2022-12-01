@@ -101,6 +101,9 @@ public class FollowService extends Service{
         System.out.println("Decrementing follower count of followee");
         userDao.decrementFollowerCount(request.getFolloweeAlias());
 
+
+
+
         return new UnfollowResponse();
 //        return new UnfollowResponse();
     }
