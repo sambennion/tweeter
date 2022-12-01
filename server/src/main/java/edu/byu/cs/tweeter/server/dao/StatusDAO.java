@@ -1,5 +1,10 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +16,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
+import edu.byu.cs.tweeter.server.JsonSerializer;
 import edu.byu.cs.tweeter.server.dao.bean.FeedBean;
 import edu.byu.cs.tweeter.server.dao.bean.StoryBean;
 import edu.byu.cs.tweeter.util.Pair;
@@ -138,20 +144,47 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
 
     private void postToFeed(Status status, List<User> followers){
-        DynamoDbTable<FeedBean> feedTable = getFeedTable();
-
-        for(User user : followers){
-            Key key = buildKey(user.getAlias());
+        //m4a implementation
+//        DynamoDbTable<FeedBean> feedTable = getFeedTable();
+//
+//        for(User user : followers){
+//            Key key = buildKey(user.getAlias());
+//            FeedBean feedBean = new FeedBean();
+//            feedBean.setStatus(status.getPost());
+//            feedBean.setAlias(user.getAlias());
+//            feedBean.setStatusOwner(status.getUser().getAlias());
+//            feedBean.setMentions(status.getMentions());
+//            feedBean.setTimestamp(status.getDate());
+//            feedBean.setUrls(status.getUrls());
+//            System.out.println("Adding item to feed table");
+//            feedTable.putItem(feedBean);
+//        }
+        List<FeedBean> feeds = new ArrayList<>();
+        for(User follower : followers){
             FeedBean feedBean = new FeedBean();
             feedBean.setStatus(status.getPost());
-            feedBean.setAlias(user.getAlias());
+            feedBean.setAlias(follower.getAlias());
             feedBean.setStatusOwner(status.getUser().getAlias());
             feedBean.setMentions(status.getMentions());
             feedBean.setTimestamp(status.getDate());
             feedBean.setUrls(status.getUrls());
-            System.out.println("Adding item to feed table");
-            feedTable.putItem(feedBean);
+
+            feeds.add(feedBean);
         }
+        String message = JsonSerializer.serialize(feeds);
+
+        String queueUrl = "https://sqs.us-west-2.amazonaws.com/321965405476/FeedQueue";
+
+        SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(queueUrl)
+                .withMessageBody(message);
+
+        AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+        SendMessageResult send_msg_result = sqs.sendMessage(send_msg_request);
+
+        String msgId = send_msg_result.getMessageId();
+        System.out.println("Message ID: " + msgId);
+
     }
 
 

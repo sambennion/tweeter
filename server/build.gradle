@@ -22,6 +22,9 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb:2.18.25'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.350'
     implementation 'com.google.inject:guice:5.1.0'
+    implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.353'
+    implementation 'com.amazonaws:aws-java-sdk-core:1.12.353'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
 
     // Testing related dependencies
 
