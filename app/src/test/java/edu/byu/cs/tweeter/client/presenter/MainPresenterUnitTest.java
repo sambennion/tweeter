@@ -11,6 +11,7 @@ import edu.byu.cs.tweeter.client.observer.ILogoutObserver;
 import edu.byu.cs.tweeter.client.observer.PostStatusObserver;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.presenter.MainPresenter;
 import edu.byu.cs.tweeter.model.domain.Status;
 
 public class MainPresenterUnitTest {
@@ -145,5 +146,7 @@ public class MainPresenterUnitTest {
         Mockito.verify(mockView, Mockito.times(0)).displayErrorMessage("Failed to post status: this is an exception");
         Mockito.verify(mockView).displayErrorMessage("Failed to post status because of exception: this is an exception");
     }
+
+
 
 }
