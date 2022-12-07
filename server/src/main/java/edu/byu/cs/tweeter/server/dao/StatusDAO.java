@@ -38,6 +38,7 @@ public class StatusDAO extends Dao implements IStatusDAO {
     private static final String FeedTableName = "feed";
     private static final String FeedOwnerHandleAttribute = "alias";
     private static final String StatusAttribute = "status";
+    private static final String TimestampAttribute = "timestamp";
 
 
     @Override
@@ -46,9 +47,9 @@ public class StatusDAO extends Dao implements IStatusDAO {
         assert request.getAuthToken() != null;
         // TODO: Generates dummy data. Replace with a real implementation.
         System.out.println("Request for feed for alias " + request.getTargetUserAlias() + " limit = " + request.getLimit() + " last status = " + request.getLastStatus());
-        String lastStatus = null;
+        Status lastStatus = null;
         if(request.getLastStatus() != null){
-            lastStatus = request.getLastStatus().toString();
+            lastStatus = request.getLastStatus();
         }
         List<FeedBean> feedBeans = getFeedBeans(request.getTargetUserAlias(), request.getLimit(), lastStatus);
         List<Status> feed = new ArrayList<>(request.getLimit());
@@ -69,9 +70,9 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
     @Override
     public Pair<List<Status>, Boolean> getStory(StoryRequest request, User targetUser) {
-        String lastStatus = null;
+        Status lastStatus = null;
         if(request.getLastStatus() != null){
-            lastStatus = request.getLastStatus().toString();
+            lastStatus = request.getLastStatus();
         }
         List<StoryBean> storyBeans = getStoryBeans(request.getTargetUserAlias(), request.getLimit(), lastStatus);
 
@@ -164,19 +165,25 @@ public class StatusDAO extends Dao implements IStatusDAO {
 //            System.out.println("Adding item to feed table");
 //            feedTable.putItem(feedBean);
 //        }
-        List<FeedBean> feeds = new ArrayList<>();
-        for(User follower : followers){
-            FeedBean feedBean = new FeedBean();
-            feedBean.setStatus(status.getPost());
-            feedBean.setAlias(follower.getAlias());
-            feedBean.setStatusOwner(status.getUser().getAlias());
-            feedBean.setMentions(status.getMentions());
-            feedBean.setTimestamp(status.getDate());
-            feedBean.setUrls(status.getUrls());
 
-            feeds.add(feedBean);
-        }
-        String message = JsonSerializer.serialize(feeds);
+        //for sending feeds
+//        List<FeedBean> feeds = new ArrayList<>();
+//        for(User follower : followers){
+//            FeedBean feedBean = new FeedBean();
+//            feedBean.setStatus(status.getPost());
+//            feedBean.setAlias(follower.getAlias());
+//            feedBean.setStatusOwner(status.getUser().getAlias());
+//            feedBean.setMentions(status.getMentions());
+//            feedBean.setTimestamp(status.getDate());
+//            feedBean.setUrls(status.getUrls());
+//
+//            feeds.add(feedBean);
+//        }
+//
+//        String message = JsonSerializer.serialize(feeds);
+
+
+        String message = JsonSerializer.serialize(status);
 
         String queueUrl = "https://sqs.us-west-2.amazonaws.com/321965405476/FeedQueue";
 
@@ -200,7 +207,7 @@ public class StatusDAO extends Dao implements IStatusDAO {
      *
      * @return The next page of follows
      */
-    private List<StoryBean> getStoryBeans(String alias, int pageSize, String lastStatus) {
+    private List<StoryBean> getStoryBeans(String alias, int pageSize, Status lastStatus) {
         DynamoDbTable<StoryBean> table = enhancedClient.table(StoryTableName, TableSchema.fromBean(StoryBean.class));
         System.out.println("Selected Table");
         System.out.println("Building Key");
@@ -209,15 +216,15 @@ public class StatusDAO extends Dao implements IStatusDAO {
                 .build();
         System.out.println("Building Request");
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder()
-                .queryConditional(QueryConditional.keyEqualTo(key));
+                .queryConditional(QueryConditional.keyEqualTo(key)).scanIndexForward(true);
         // If you use iterators, it auto-fetches next page always, so instead limit the stream below
         //.limit(5);
         System.out.println("Checking if last status == null or \"\"");
-        if(lastStatus != "" && lastStatus != null) {
+        if(lastStatus != null && lastStatus.getPost() != "") {
             // Build up the Exclusive Start Key (telling DynamoDB where you left off reading items)
             Map<String, AttributeValue> startKey = new HashMap<>();
             startKey.put(FeedOwnerHandleAttribute, AttributeValue.builder().s(alias).build());
-            startKey.put(StatusAttribute, AttributeValue.builder().s(lastStatus).build());
+            startKey.put(TimestampAttribute, AttributeValue.builder().s(lastStatus.getDate()).build());
 
             requestBuilder.exclusiveStartKey(startKey);
         }
@@ -232,7 +239,7 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
     }
 
-    private List<FeedBean> getFeedBeans(String alias, int pageSize, String lastStatus) {
+    private List<FeedBean> getFeedBeans(String alias, int pageSize, Status lastStatus) {
         System.out.println("Selecting table");
         DynamoDbTable<FeedBean> table = enhancedClient.table(FeedTableName, TableSchema.fromBean(FeedBean.class));
         Key key = Key.builder()
@@ -240,18 +247,18 @@ public class StatusDAO extends Dao implements IStatusDAO {
                 .build();
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder()
-                .queryConditional(QueryConditional.keyEqualTo(key));
+                .queryConditional(QueryConditional.keyEqualTo(key)).scanIndexForward(true);
         // If you use iterators, it auto-fetches next page always, so instead limit the stream below
         //.limit(5);
 
         System.out.println("Checking that lastStatus != \"\"");
-        if(lastStatus != "" && lastStatus != null) {
+        if(lastStatus != null && lastStatus.getDate() != "") {
             System.out.println("Last status exists");
             System.out.println("Setting start key");
             // Build up the Exclusive Start Key (telling DynamoDB where you left off reading items)
             Map<String, AttributeValue> startKey = new HashMap<>();
             startKey.put(FeedOwnerHandleAttribute, AttributeValue.builder().s(alias).build());
-            startKey.put(StatusAttribute, AttributeValue.builder().s(lastStatus).build());
+            startKey.put(TimestampAttribute, AttributeValue.builder().s(lastStatus.getDate()).build());
 
             requestBuilder.exclusiveStartKey(startKey);
         }
@@ -280,11 +287,16 @@ public class StatusDAO extends Dao implements IStatusDAO {
             throw new RuntimeException("Batch size too big");
         }
 
+        System.out.println("Selecting table");
         DynamoDbTable<FeedBean> table = enhancedClient.table(FeedTableName, TableSchema.fromBean(FeedBean.class));
         WriteBatch.Builder<FeedBean> writeBuilder = WriteBatch.builder(FeedBean.class).mappedTableResource(table);
+        System.out.println("Adding feeds to writeBuilder.addPutItem");
         for (FeedBean item : feeds) {
             writeBuilder.addPutItem(builder -> builder.item(item));
         }
+
+
+        System.out.println("Building request");
         BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
                 .writeBatches(writeBuilder.build()).build();
 
@@ -293,6 +305,7 @@ public class StatusDAO extends Dao implements IStatusDAO {
 
             // just hammer dynamodb again with anything that didn't get written this time
             if (result.unprocessedPutItemsForTable(table).size() > 0) {
+                System.out.println("There's still unprocessed items");
                 addFeedBatch(result.unprocessedPutItemsForTable(table));
             }
 

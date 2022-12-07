@@ -19,7 +19,7 @@ public class FeedBatchProcessor implements RequestHandler<SQSEvent, Void> {
             List<FeedBean> feeds = JsonSerializer.deserializeList(msg.getBody(), FeedBean[].class);
 
             StatusDAO statusDAO = new StatusDAO();
-
+            System.out.println("Starting addFeedBatch");
             statusDAO.addFeedBatch(feeds);
 
         }
