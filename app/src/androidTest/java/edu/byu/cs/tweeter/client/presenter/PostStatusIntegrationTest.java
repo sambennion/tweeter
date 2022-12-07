@@ -90,7 +90,7 @@ public class PostStatusIntegrationTest {
 
     @Test
     public void testPost_postSuccess(){
-        final String toPost = "I love the summer!";
+        final String toPost = "Working test for testPost_postSuccess";
 
 
         //Login User
